@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChartDataPoint } from "@/lib/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
 import { config } from "@/config";
 import { RefreshCw, Info } from "lucide-react";
@@ -103,41 +103,44 @@ export function VolumeChart({
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle>📈 Volume (Hm³) comparado com Metas</CardTitle>
+    <section className="bg-card border border-border/40 rounded-xl">
+      <div className="flex flex-row items-center justify-between p-4 border-b border-border/40">
+        <h2 className="text-base font-semibold">📈 Volume (Hm³) comparado com Metas</h2>
 
-        <TooltipProvider>
-          <ShadcnTooltip>
-            <TooltipTrigger asChild>
-              <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-            </TooltipTrigger>
-            <TooltipContent className="max-w-[280px]">
-              <p>
-                As **Metas** representam os volumes esperados (em porcentagem da
-                capacidade total) para diferentes cenários de operação e
-                planejamento hídrico.
-              </p>
-            </TooltipContent>
-          </ShadcnTooltip>
-        </TooltipProvider>
+        <div className="flex items-center gap-2">
+          <TooltipProvider>
+            <ShadcnTooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[280px]">
+                <p>
+                  As **Metas** representam os volumes esperados (em porcentagem da
+                  capacidade total) para diferentes cenários de operação e
+                  planejamento hídrico.
+                </p>
+              </TooltipContent>
+            </ShadcnTooltip>
+          </TooltipProvider>
 
-        {reservatorioId && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleUpdateData}
-            disabled={isUpdating}
-            title="Buscar dados mais recentes da FUNCEME"
-          >
-            <RefreshCw
-              className={`mr-2 h-4 w-4 ${isUpdating ? "animate-spin" : ""}`}
-            />
-            {isUpdating ? "Atualizando..." : "Atualizar Dados"}
-          </Button>
-        )}
-      </CardHeader>
-      <CardContent>
+          {reservatorioId && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleUpdateData}
+              disabled={isUpdating}
+              title="Buscar dados mais recentes da FUNCEME"
+            >
+              <RefreshCw
+                className={`mr-2 h-4 w-4 ${isUpdating ? "animate-spin" : ""}`}
+              />
+              {isUpdating ? "Atualizando..." : "Atualizar Dados"}
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <div className="p-4">
         <div style={{ width: "100%", height: 400 }}>
           <ResponsiveContainer>
             <LineChart
@@ -274,7 +277,7 @@ export function VolumeChart({
             </li>
           </ul>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
 }

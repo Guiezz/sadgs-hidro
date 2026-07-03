@@ -9,13 +9,6 @@ import { VolumeChart } from "@/components/dashboard/VolumeChart";
 import { MetricCards } from "@/components/dashboard/MetricCards";
 import { GaugeThresholds } from "@/components/dashboard/DroughtGauge";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import {
   Table,
   TableBody,
   TableCell,
@@ -24,7 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
+import { Loader2, Clock } from "lucide-react";
 import { EmptyReservoirState } from "@/components/dashboard/EmptyReservoirState";
 
 // Função auxiliar para converter strings de data (ex: "dd/mm/yyyy") em objetos Date
@@ -220,14 +213,16 @@ export default function EstadoDeSecaPage() {
             onRefresh={fetchData}
           />
         </div>
-        <Card className="border shadow-sm">
-          <CardHeader>
-            <CardTitle>Histórico Recente</CardTitle>
-            <CardDescription>
-              Os 8 registros mais recentes do sistema.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
+          <div className="flex items-center gap-2 p-4 border-b border-border/40">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <div>
+              <h3 className="text-sm font-semibold">Histórico Recente</h3>
+              <p className="text-xs text-muted-foreground">
+                Os 8 registros mais recentes do sistema.
+              </p>
+            </div>
+          </div>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -250,8 +245,7 @@ export default function EstadoDeSecaPage() {
                 ))}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
+        </div>
       </div>
     </main>
   );
