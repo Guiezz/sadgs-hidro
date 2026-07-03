@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Clock, CalendarDays, ShieldCheck } from "lucide-react";
+import { Loader2, Clock, CalendarDays, ShieldCheck, Droplets } from "lucide-react";
 import { EmptyReservoirState } from "@/components/dashboard/EmptyReservoirState";
 
 // Função auxiliar para converter strings de data (ex: "dd/mm/yyyy") em objetos Date
@@ -186,71 +186,90 @@ export default function EstadoDeSecaPage() {
 
   const recentHistory = history.slice(-8).reverse();
   const diasNoEstado = daysInState ?? summary.diasDesdeUltimaMudanca ?? 0;
+  const medidas = summary.medidasRecomendadas?.length ?? 0;
 
   // 4. ESTADO: SUCESSO
   return (
-    <main className="flex flex-1 flex-col gap-6 p-4 lg:gap-8 lg:p-6 bg-background overflow-x-hidden">
-      <h1 className="text-lg font-semibold md:text-2xl">
-        Monitoramento do Estado de Seca:{" "}
-        <span className="text-primary">{selectedReservoir.nome}</span>
-      </h1>
+    <main className="flex flex-1 flex-col gap-8 p-4 lg:gap-10 lg:p-6 bg-background overflow-x-hidden">
+      <div className="space-y-1">
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+          Monitoramento do Estado de Seca
+        </p>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-primary">
+          {selectedReservoir.nome}
+        </h1>
+      </div>
 
-      {/* Gauge hero + dados */}
-      <div className="flex flex-col items-center sm:items-start gap-4 py-2">
-        <div className="w-full max-w-[280px] mx-auto sm:mx-0">
+      {/* Métricas */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+        <div className="flex items-start gap-3">
+          <div className="bg-primary/10 p-2.5 rounded-xl shrink-0">
+            <Droplets className="h-5 w-5 text-primary" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground">Volume Atual</p>
+            <p className="text-xl lg:text-2xl font-bold tracking-tight truncate">
+              {summary.volumeAtualHm3}
+              <span className="text-sm font-medium text-muted-foreground ml-1">
+                hm³
+              </span>
+            </p>
+            {capacidadeTotal && capacidadeTotal > 0 && (
+              <p className="text-xs text-muted-foreground/70">
+                Capacidade: {capacidadeTotal.toFixed(2)} hm³
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-center">
           {gaugeThresholds ? (
             <DroughtGauge
               percentage={summary.volumePercentual}
               currentState={summary.estadoAtualSeca}
               thresholds={gaugeThresholds}
-              width={200}
-              height={110}
+              width={140}
+              height={80}
             />
           ) : (
-            <div className="flex items-center gap-3 py-4">
-              <div className="text-5xl font-bold tracking-tighter">
+            <div className="text-center">
+              <p className="text-xl font-bold">
                 {summary.volumePercentual.toFixed(1)}%
-              </div>
-              <div className="text-sm font-semibold uppercase text-green-600">
+              </p>
+              <p className="text-xs font-semibold uppercase text-green-600">
                 {summary.estadoAtualSeca}
-              </div>
+              </p>
             </div>
           )}
         </div>
 
-        <div className="space-y-1 text-center sm:text-left w-full">
-          <p className="text-sm text-muted-foreground">
-            Volume:{" "}
-            <strong className="text-foreground">
-              {summary.volumeAtualHm3}
-            </strong>{" "}
-            hm³
-            {capacidadeTotal && capacidadeTotal > 0 && (
-              <span className="text-muted-foreground/60">
-                {" "}
-                · Capacidade total: {capacidadeTotal.toFixed(2)} hm³
-              </span>
-            )}
-          </p>
-          <div className="flex flex-wrap justify-center sm:justify-start gap-x-4 gap-y-1 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <CalendarDays className="h-3.5 w-3.5" />
-              <strong className="text-foreground">{diasNoEstado}</strong> dias
-              no estado
-              {sinceDate && (
-                <span className="text-muted-foreground/60">
-                  (desde {sinceDate})
-                </span>
-              )}
-            </span>
-            <span className="text-muted-foreground/30 hidden sm:inline">|</span>
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              <strong className="text-foreground">
-                {summary.medidasRecomendadas?.length ?? 0}
-              </strong>{" "}
-              medidas ativas
-            </span>
+        <div className="flex items-start gap-3">
+          <div className="bg-primary/10 p-2.5 rounded-xl shrink-0">
+            <CalendarDays className="h-5 w-5 text-primary" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground">Desde</p>
+            <p className="text-xl lg:text-2xl font-bold tracking-tight">
+              {sinceDate || "—"}
+            </p>
+            <p className="text-xs text-muted-foreground/70">
+              {diasNoEstado} dias
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-3">
+          <div className="bg-primary/10 p-2.5 rounded-xl shrink-0">
+            <ShieldCheck className="h-5 w-5 text-primary" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground">Medidas ativas</p>
+            <p className="text-xl lg:text-2xl font-bold tracking-tight">
+              {medidas}
+            </p>
+            <p className="text-xs text-muted-foreground/70">
+              {medidas === 1 ? "medida" : "medidas"}
+            </p>
           </div>
         </div>
       </div>
