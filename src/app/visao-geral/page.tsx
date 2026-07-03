@@ -85,9 +85,9 @@ export default function VisaoGeralPage() {
     <main className="flex flex-1 flex-col bg-background">
       {/* Hero */}
       <section className="relative -mx-4 lg:-mx-8 -mt-4 sm:-mt-6 h-[40vh] md:h-[45vh] overflow-hidden bg-gradient-to-br from-primary/12 via-primary/5 to-background">
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 to-background/5" />
 
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 lg:p-14 max-w-7xl mx-auto">
+        <div className="absolute top-6 md:bottom-0 md:top-auto left-0 right-0 p-6 md:p-10 lg:p-14 max-w-7xl mx-auto">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-background/80 backdrop-blur-sm text-xs font-medium text-muted-foreground mb-4 border border-border/40">
               <MapPin className="h-3 w-3 text-primary" />
