@@ -189,66 +189,84 @@ export default function EstadoDeSecaPage() {
 
   // 4. ESTADO: SUCESSO
   return (
-    <main className="flex flex-1 flex-col gap-6 p-4 lg:gap-8 lg:p-6 bg-background">
+    <main className="flex flex-1 flex-col gap-6 p-4 lg:gap-8 lg:p-6 bg-background overflow-x-hidden">
       <h1 className="text-lg font-semibold md:text-2xl">
         Monitoramento do Estado de Seca:{" "}
         <span className="text-primary">{selectedReservoir.nome}</span>
       </h1>
 
-      {/* Volume Atual + Gauge compacto */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 py-2">
-        <div className="space-y-0.5">
-          <p className="text-sm text-muted-foreground font-medium">Volume Atual</p>
-          <p className="text-4xl font-bold tracking-tight">
-            {summary.volumeAtualHm3}
-            <span className="text-lg font-medium text-muted-foreground ml-1">
-              hm³
-            </span>
-          </p>
-        </div>
-        <div className="w-px h-12 bg-border hidden sm:block" />
-        {gaugeThresholds && (
-          <div className="flex-1 flex justify-start">
+      {/* Gauge hero + dados */}
+      <div className="flex flex-col items-center sm:items-start gap-4 py-2">
+        <div className="w-full max-w-[280px] mx-auto sm:mx-0">
+          {gaugeThresholds ? (
             <DroughtGauge
               percentage={summary.volumePercentual}
               currentState={summary.estadoAtualSeca}
               thresholds={gaugeThresholds}
-              width={160}
-              height={90}
+              width={200}
+              height={110}
             />
-          </div>
-        )}
-      </div>
-
-      {/* Stats inline */}
-      <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
-        <span className="flex items-center gap-1.5">
-          <CalendarDays className="h-4 w-4" />
-          <strong className="text-foreground">{diasNoEstado}</strong> dias{" "}
-          {sinceDate && (
-            <span className="text-muted-foreground/70">(desde {sinceDate})</span>
+          ) : (
+            <div className="flex items-center gap-3 py-4">
+              <div className="text-5xl font-bold tracking-tighter">
+                {summary.volumePercentual.toFixed(1)}%
+              </div>
+              <div className="text-sm font-semibold uppercase text-green-600">
+                {summary.estadoAtualSeca}
+              </div>
+            </div>
           )}
-        </span>
-        <span className="text-muted-foreground/40">·</span>
-        <span className="flex items-center gap-1.5">
-          <ShieldCheck className="h-4 w-4" />
-          <strong className="text-foreground">
-            {summary.medidasRecomendadas?.length ?? 0}
-          </strong>{" "}
-          medidas ativas
-        </span>
+        </div>
+
+        <div className="space-y-1 text-center sm:text-left w-full">
+          <p className="text-sm text-muted-foreground">
+            Volume:{" "}
+            <strong className="text-foreground">
+              {summary.volumeAtualHm3}
+            </strong>{" "}
+            hm³
+            {capacidadeTotal && capacidadeTotal > 0 && (
+              <span className="text-muted-foreground/60">
+                {" "}
+                · Capacidade total: {capacidadeTotal.toFixed(2)} hm³
+              </span>
+            )}
+          </p>
+          <div className="flex flex-wrap justify-center sm:justify-start gap-x-4 gap-y-1 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <CalendarDays className="h-3.5 w-3.5" />
+              <strong className="text-foreground">{diasNoEstado}</strong> dias
+              no estado
+              {sinceDate && (
+                <span className="text-muted-foreground/60">
+                  (desde {sinceDate})
+                </span>
+              )}
+            </span>
+            <span className="text-muted-foreground/30 hidden sm:inline">|</span>
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              <strong className="text-foreground">
+                {summary.medidasRecomendadas?.length ?? 0}
+              </strong>{" "}
+              medidas ativas
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Chart full width */}
-      <VolumeChart
-        data={chart}
-        reservatorioId={selectedReservoir.id}
-        capacidadeMaxima={capacidadeTotal}
-        onRefresh={fetchData}
-      />
+      <div className="min-w-0 overflow-hidden">
+        <VolumeChart
+          data={chart}
+          reservatorioId={selectedReservoir.id}
+          capacidadeMaxima={capacidadeTotal}
+          onRefresh={fetchData}
+        />
+      </div>
 
       {/* Histórico full width */}
-      <section className="space-y-3">
+      <section className="space-y-3 min-w-0 overflow-hidden">
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-muted-foreground" />
           <h2 className="text-sm font-semibold">Histórico Recente</h2>
