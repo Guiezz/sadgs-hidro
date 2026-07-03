@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useReservoir } from "@/context/ReservoirContext";
 import { config } from "@/config";
 import { IdentificationData } from "@/lib/types";
-import { Loader2, MapPin, Droplets, Waves, Home, Crosshair } from "lucide-react";
+import { Loader2, MapPin, Droplets, Home, Crosshair } from "lucide-react";
 import IdentificationMapWrapper from "@/components/dashboard/IdentificationMapWrapper";
 import { EmptyReservoirState } from "@/components/dashboard/EmptyReservoirState";
 import Image from "next/image";
@@ -84,19 +84,8 @@ export default function VisaoGeralPage() {
   return (
     <main className="flex flex-1 flex-col bg-background">
       {/* Hero */}
-      <section className="relative -mx-4 lg:-mx-8 -mt-4 sm:-mt-6 h-[50vh] md:h-[60vh] overflow-hidden">
-        {data.url_imagem ? (
-          <Image
-            src={data.url_imagem}
-            alt={`Vista do reservatório ${data.nome}`}
-            fill
-            className="object-cover"
-            priority
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-primary/5 to-background" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+      <section className="relative -mx-4 lg:-mx-8 -mt-4 sm:-mt-6 h-[40vh] md:h-[45vh] overflow-hidden bg-gradient-to-br from-primary/12 via-primary/5 to-background">
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
 
         <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 lg:p-14 max-w-7xl mx-auto">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
@@ -121,37 +110,35 @@ export default function VisaoGeralPage() {
         </div>
       </section>
 
-      {/* Sobre */}
-      <section className="max-w-4xl mx-auto w-full px-6 md:px-10 lg:px-14 py-14 md:py-18">
-        <div className="border-l-2 border-primary pl-6 md:pl-8 space-y-4">
-          <div className="space-y-1">
-            <span className="text-xs font-semibold text-primary uppercase tracking-[0.15em]">
-              Sobre
-            </span>
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-              O Reservatório
-            </h2>
-          </div>
-          <div className="space-y-4 text-base md:text-lg leading-relaxed text-muted-foreground max-w-3xl">
-            {paragraphs.length > 0 ? (
-              paragraphs.map((paragraph, index) => (
-                <p key={index}>{paragraph}</p>
-              ))
-            ) : (
-              <p className="italic text-muted-foreground/60">
-                Informações não disponíveis para este reservatório.
-              </p>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Vista + Dados */}
+      {/* Sobre + Vista + Dados */}
       <section className="bg-muted/20 py-14 md:py-18">
         <div className="max-w-6xl mx-auto px-6 md:px-10 lg:px-14">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
-            {/* Vista */}
-            <div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14">
+            {/* Sobre */}
+            <div className="border-l-2 border-primary pl-6 md:pl-8 space-y-4">
+              <div className="space-y-1">
+                <span className="text-xs font-semibold text-primary uppercase tracking-[0.15em]">
+                  Sobre
+                </span>
+                <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+                  O Reservatório
+                </h2>
+              </div>
+              <div className="space-y-4 text-base md:text-lg leading-relaxed text-muted-foreground">
+                {paragraphs.length > 0 ? (
+                  paragraphs.map((paragraph, index) => (
+                    <p key={index}>{paragraph}</p>
+                  ))
+                ) : (
+                  <p className="italic text-muted-foreground/60">
+                    Informações não disponíveis para este reservatório.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Vista + Dados */}
+            <div className="space-y-6">
               <div className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg">
                 {data.url_imagem ? (
                   <Image
@@ -166,39 +153,33 @@ export default function VisaoGeralPage() {
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* Dados */}
-            <div className="space-y-6">
-              <div className="space-y-1">
-                <span className="text-xs font-semibold text-primary uppercase tracking-[0.15em]">
-                  Dados Técnicos
-                </span>
-                <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-                  Informações do Reservatório
-                </h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <StatItem
-                  icon={<Droplets className="h-5 w-5 text-primary" />}
-                  label="Capacidade"
-                  value={`${selectedReservoir.capacidade_hm3.toFixed(2)} hm³`}
-                />
-                <StatItem
-                  icon={<Waves className="h-5 w-5 text-primary" />}
-                  label="Bacia Hidrográfica"
-                  value={selectedReservoir.bacia || "Não informada"}
-                />
-                <StatItem
-                  icon={<Home className="h-5 w-5 text-primary" />}
-                  label="Município"
-                  value={data.municipio}
-                />
-                <StatItem
-                  icon={<Crosshair className="h-5 w-5 text-primary" />}
-                  label="Coordenadas"
-                  value={`${data.lat.toFixed(4)}, ${data.long.toFixed(4)}`}
-                />
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <span className="text-xs font-semibold text-primary uppercase tracking-[0.15em]">
+                    Dados Técnicos
+                  </span>
+                  <h3 className="text-xl md:text-2xl font-bold tracking-tight text-foreground">
+                    Informações do Reservatório
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <StatItem
+                    icon={<Droplets className="h-5 w-5 text-primary" />}
+                    label="Capacidade"
+                    value={`${selectedReservoir.capacidade_hm3.toFixed(2)} hm³`}
+                  />
+                  <StatItem
+                    icon={<Home className="h-5 w-5 text-primary" />}
+                    label="Município"
+                    value={data.municipio}
+                  />
+                  <StatItem
+                    icon={<Crosshair className="h-5 w-5 text-primary" />}
+                    label="Coordenadas"
+                    value={`${data.lat.toFixed(4)}, ${data.long.toFixed(4)}`}
+                  />
+                </div>
               </div>
             </div>
           </div>
