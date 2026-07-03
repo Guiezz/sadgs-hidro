@@ -12,6 +12,8 @@ interface DroughtGaugeProps {
   percentage: number;
   currentState: string;
   thresholds?: GaugeThresholds;
+  width?: number;
+  height?: number;
 }
 
 // --- Funções Auxiliares SVG (Mantidas iguais) ---
@@ -61,8 +63,11 @@ export function DroughtGauge({
   percentage,
   currentState,
   thresholds,
+  width = 240,
+  height = 140,
 }: DroughtGaugeProps) {
   const value = Math.min(Math.max(percentage, 0), 100);
+  const compact = width < 200;
 
   // Configurações Visuais
   const radius = 80;
@@ -134,8 +139,8 @@ export function DroughtGauge({
   return (
     <div className="flex flex-col items-center justify-center w-full">
       <svg
-        width="240"
-        height="140"
+        width={width}
+        height={height}
         viewBox="0 20 200 120"
         className="overflow-visible"
       >
@@ -202,12 +207,12 @@ export function DroughtGauge({
         </text>
       </svg>
 
-      <div className="mt-[-20px] flex flex-col items-center text-center z-10">
-        <span className="text-3xl font-black text-slate-800 dark:text-slate-100">
+      <div className={`flex flex-col items-center text-center z-10 ${compact ? "mt-[-16px]" : "mt-[-20px]"}`}>
+        <span className={`font-black text-slate-800 dark:text-slate-100 ${compact ? "text-lg" : "text-3xl"}`}>
           {value.toFixed(1)}%
         </span>
         <span
-          className="text-sm font-semibold uppercase"
+          className={`font-semibold uppercase ${compact ? "text-[10px]" : "text-sm"}`}
           style={{ color: stateColor }}
         >
           {currentState}

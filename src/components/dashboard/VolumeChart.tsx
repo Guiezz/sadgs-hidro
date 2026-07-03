@@ -244,39 +244,53 @@ export function VolumeChart({
             </LineChart>
           </ResponsiveContainer>
         </div>
-        <div className="bg-muted/30 p-4 rounded-lg border border-border/50 text-sm space-y-2">
-          <div className="flex items-center gap-2 font-semibold text-foreground">
+        <details className="group text-sm">
+          <summary className="flex items-center gap-2 cursor-pointer text-muted-foreground hover:text-foreground transition-colors list-none [&::-webkit-details-marker]:hidden">
             <Info className="h-4 w-4" />
-            <span>OBS: Entenda as Metas</span>
+            <span className="font-medium">Entenda as Metas</span>
+            <svg
+              className="ml-auto h-4 w-4 transition-transform group-open:rotate-180"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </summary>
+          <div className="mt-3 space-y-2 text-muted-foreground">
+            <p className="leading-relaxed">
+              As linhas tracejadas representam o planejamento de volume para o
+              reservatório:
+            </p>
+            <ul className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+              <li className="flex items-start gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#991b1b] mt-1 shrink-0" />
+                <span>
+                  <strong>Meta 1 (Crítico):</strong> Nível de escassez severa;
+                  requer medidas de contingenciamento.
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#b45309] mt-1 shrink-0" />
+                <span>
+                  <strong>Meta 2 (Atenção):</strong> Limite de alerta; pode
+                  indicar necessidade de restrição parcial.
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#ca8a04] mt-1 shrink-0" />
+                <span>
+                  <strong>Meta 3 (Operação):</strong>
+                  Volume ideal para garantir o pleno atendimento às demandas.
+                </span>
+              </li>
+            </ul>
           </div>
-          <p className="text-muted-foreground leading-relaxed">
-            As linhas tracejadas representam o planejamento de volume para o
-            reservatório:
-          </p>
-          <ul className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-            <li className="flex items-start gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#991b1b] mt-1 shrink-0" />
-              <span>
-                <strong>Meta 1 (Crítico):</strong> Nível de escassez severa;
-                requer medidas de contingenciamento.
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#b45309] mt-1 shrink-0" />
-              <span>
-                <strong>Meta 2 (Atenção):</strong> Limite de alerta; pode
-                indicar necessidade de restrição parcial.
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#ca8a04] mt-1 shrink-0" />
-              <span>
-                <strong>Meta 3 (Operação):</strong>
-                Volume ideal para garantir o pleno atendimento às demandas.
-              </span>
-            </li>
-          </ul>
-        </div>
+        </details>
       </div>
     </section>
   );
