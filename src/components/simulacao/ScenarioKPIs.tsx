@@ -19,7 +19,7 @@ export function ScenarioKPIs({ cenarios }: ScenarioKPIsProps) {
       {cenarios.map((c) => (
         <Card
           key={c.nome}
-          className={`border-l-4 ${
+          className={`border-l-4 transition-shadow hover:shadow-[var(--card-shadow-hover)] ${
             c.frequencia_nao_atendida === 0
               ? "border-l-green-500"
               : c.frequencia_nao_atendida <= 20

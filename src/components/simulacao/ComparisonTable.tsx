@@ -70,12 +70,12 @@ export function ComparisonTable({ cenarios }: ComparisonTableProps) {
               {cenarios.map((c) => (
                 <TableRow
                   key={c.nome}
-                  className={
+                  className={`transition-colors hover:bg-muted/50 ${
                     c.frequencia_nao_atendida === maiorFNAGlobal &&
                     maiorFNAGlobal > 0
-                      ? "bg-red-50"
+                      ? "bg-red-50 hover:bg-red-100/60"
                       : ""
-                  }
+                  }`}
                 >
                   <TableCell className="font-medium">{c.nome}</TableCell>
                   <TableCell className="text-right font-bold text-blue-700">

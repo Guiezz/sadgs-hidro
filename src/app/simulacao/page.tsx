@@ -572,15 +572,15 @@ export default function SimulacaoPage() {
 
   // --- RENDERIZAÇÃO: PÁGINA PRINCIPAL ---
   return (
-    <div className="container mx-auto p-6 space-y-8 animate-in fade-in duration-500">
+    <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 py-6 space-y-8 animate-in fade-in duration-500">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b pb-4">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b pb-5">
+        <div className="space-y-1.5">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tighter leading-none flex items-center gap-3">
             <Droplets className="h-8 w-8 text-amber-700" />
             Simulador de Balanço Hídrico
           </h1>
-          <p className="text-muted-foreground max-w-2xl">
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-[65ch]">
             Cenário atual: <strong>{selectedReservoir.nome}</strong>. Avalie a
             segurança hídrica ou compare diferentes cenários de demanda.
           </p>
@@ -681,21 +681,45 @@ export default function SimulacaoPage() {
 
           {/* Loading */}
           {simulating && (
-            <div className="h-full min-h-[400px] flex flex-col items-center justify-center text-muted-foreground bg-slate-50 rounded-lg border-2 border-dashed">
-              <Loader2 className="h-12 w-12 mb-4 animate-spin text-amber-500" />
-              <p className="text-lg font-medium">
-                {progresso || "Executando cenários..."}
-              </p>
+            <div className="h-full min-h-[500px] space-y-6">
+              {/* Skeleton cards */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-white border rounded-lg p-5 space-y-3 animate-pulse"
+                  >
+                    <div className="h-3 bg-amber-100 rounded w-1/2" />
+                    <div className="h-6 bg-amber-100 rounded w-3/4" />
+                    <div className="h-3 bg-amber-50 rounded w-1/3" />
+                  </div>
+                ))}
+              </div>
+              {/* Skeleton chart */}
+              <div className="bg-white border rounded-lg p-6 space-y-4 animate-pulse">
+                <div className="h-4 bg-amber-100 rounded w-1/4" />
+                <div className="h-[300px] bg-amber-50 rounded" />
+              </div>
+              {/* Progress text */}
+              <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
+                <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                <span>{progresso || "Executando cenários..."}</span>
+              </div>
             </div>
           )}
 
           {/* Estado Inicial */}
           {!resultado && !resultadoMulti && !simulating && selectedAcudeId && (
-            <div className="h-full min-h-[400px] flex flex-col items-center justify-center text-muted-foreground bg-slate-50 rounded-lg border-2 border-dashed">
-              <Droplets className="h-12 w-12 mb-4 opacity-20" />
-              <p>
+            <div className="flex flex-col items-center justify-center text-center py-20 px-6 bg-card border border-border/60 rounded-xl shadow-[var(--card-shadow)]">
+              <div className="p-4 bg-amber-50 rounded-full mb-5">
+                <Droplets className="h-10 w-10 text-amber-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-1.5">
+                Pronto para simular
+              </h3>
+              <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
                 Configure os parâmetros à esquerda e clique em{" "}
-                <strong>Gerar Simulação</strong>
+                <strong>Gerar Simulação</strong> para visualizar os resultados.
               </p>
             </div>
           )}
