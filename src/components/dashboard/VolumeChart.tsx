@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChartDataPoint } from "@/lib/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
 import { config } from "@/config";
 import { RefreshCw, Info } from "lucide-react";
@@ -103,41 +103,44 @@ export function VolumeChart({
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle>📈 Volume (Hm³) comparado com Metas</CardTitle>
+    <section className="bg-card border border-border/40 rounded-xl">
+      <div className="flex flex-row items-center justify-between p-4 border-b border-border/40">
+        <h2 className="text-base font-semibold">📈 Volume (Hm³) comparado com Metas</h2>
 
-        <TooltipProvider>
-          <ShadcnTooltip>
-            <TooltipTrigger asChild>
-              <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-            </TooltipTrigger>
-            <TooltipContent className="max-w-[280px]">
-              <p>
-                As **Metas** representam os volumes esperados (em porcentagem da
-                capacidade total) para diferentes cenários de operação e
-                planejamento hídrico.
-              </p>
-            </TooltipContent>
-          </ShadcnTooltip>
-        </TooltipProvider>
+        <div className="flex items-center gap-2">
+          <TooltipProvider>
+            <ShadcnTooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[280px]">
+                <p>
+                  As **Metas** representam os volumes esperados (em porcentagem da
+                  capacidade total) para diferentes cenários de operação e
+                  planejamento hídrico.
+                </p>
+              </TooltipContent>
+            </ShadcnTooltip>
+          </TooltipProvider>
 
-        {reservatorioId && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleUpdateData}
-            disabled={isUpdating}
-            title="Buscar dados mais recentes da FUNCEME"
-          >
-            <RefreshCw
-              className={`mr-2 h-4 w-4 ${isUpdating ? "animate-spin" : ""}`}
-            />
-            {isUpdating ? "Atualizando..." : "Atualizar Dados"}
-          </Button>
-        )}
-      </CardHeader>
-      <CardContent>
+          {reservatorioId && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleUpdateData}
+              disabled={isUpdating}
+              title="Buscar dados mais recentes da FUNCEME"
+            >
+              <RefreshCw
+                className={`mr-2 h-4 w-4 ${isUpdating ? "animate-spin" : ""}`}
+              />
+              {isUpdating ? "Atualizando..." : "Atualizar Dados"}
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <div className="p-4">
         <div style={{ width: "100%", height: 400 }}>
           <ResponsiveContainer>
             <LineChart
@@ -241,40 +244,54 @@ export function VolumeChart({
             </LineChart>
           </ResponsiveContainer>
         </div>
-        <div className="bg-muted/30 p-4 rounded-lg border border-border/50 text-sm space-y-2">
-          <div className="flex items-center gap-2 font-semibold text-foreground">
+        <details className="group text-sm">
+          <summary className="flex items-center gap-2 cursor-pointer text-muted-foreground hover:text-foreground transition-colors list-none [&::-webkit-details-marker]:hidden">
             <Info className="h-4 w-4" />
-            <span>OBS: Entenda as Metas</span>
+            <span className="font-medium">Entenda as Metas</span>
+            <svg
+              className="ml-auto h-4 w-4 transition-transform group-open:rotate-180"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </summary>
+          <div className="mt-3 space-y-2 text-muted-foreground">
+            <p className="leading-relaxed">
+              As linhas tracejadas representam o planejamento de volume para o
+              reservatório:
+            </p>
+            <ul className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+              <li className="flex items-start gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#991b1b] mt-1 shrink-0" />
+                <span>
+                  <strong>Meta 1 (Crítico):</strong> Nível de escassez severa;
+                  requer medidas de contingenciamento.
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#b45309] mt-1 shrink-0" />
+                <span>
+                  <strong>Meta 2 (Atenção):</strong> Limite de alerta; pode
+                  indicar necessidade de restrição parcial.
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#ca8a04] mt-1 shrink-0" />
+                <span>
+                  <strong>Meta 3 (Operação):</strong>
+                  Volume ideal para garantir o pleno atendimento às demandas.
+                </span>
+              </li>
+            </ul>
           </div>
-          <p className="text-muted-foreground leading-relaxed">
-            As linhas tracejadas representam o planejamento de volume para o
-            reservatório:
-          </p>
-          <ul className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-            <li className="flex items-start gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#991b1b] mt-1 shrink-0" />
-              <span>
-                <strong>Meta 1 (Crítico):</strong> Nível de escassez severa;
-                requer medidas de contingenciamento.
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#b45309] mt-1 shrink-0" />
-              <span>
-                <strong>Meta 2 (Atenção):</strong> Limite de alerta; pode
-                indicar necessidade de restrição parcial.
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#ca8a04] mt-1 shrink-0" />
-              <span>
-                <strong>Meta 3 (Operação):</strong>
-                Volume ideal para garantir o pleno atendimento às demandas.
-              </span>
-            </li>
-          </ul>
-        </div>
-      </CardContent>
-    </Card>
+        </details>
+      </div>
+    </section>
   );
 }

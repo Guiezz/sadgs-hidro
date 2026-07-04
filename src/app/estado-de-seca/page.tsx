@@ -6,15 +6,7 @@ import { config } from "@/config";
 
 import { DashboardSummary, HistoryEntry, ChartDataPoint } from "@/lib/types";
 import { VolumeChart } from "@/components/dashboard/VolumeChart";
-import { MetricCards } from "@/components/dashboard/MetricCards";
-import { GaugeThresholds } from "@/components/dashboard/DroughtGauge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { DroughtGauge, GaugeThresholds } from "@/components/dashboard/DroughtGauge";
 import {
   Table,
   TableBody,
@@ -24,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
+import { Loader2, Clock, CalendarDays, ShieldCheck, Droplets, Gauge } from "lucide-react";
 import { EmptyReservoirState } from "@/components/dashboard/EmptyReservoirState";
 
 // Função auxiliar para converter strings de data (ex: "dd/mm/yyyy") em objetos Date
@@ -193,66 +185,142 @@ export default function EstadoDeSecaPage() {
   }
 
   const recentHistory = history.slice(-8).reverse();
+  const diasNoEstado = daysInState ?? summary.diasDesdeUltimaMudanca ?? 0;
+  const medidas = summary.medidasRecomendadas?.length ?? 0;
 
   // 4. ESTADO: SUCESSO
   return (
-    <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
-      <div className="flex items-center">
-        <h1 className="text-lg font-semibold md:text-2xl">
-          Monitoramento do Estado de Seca:{" "}
-          <span className="text-primary">{selectedReservoir.nome}</span>
+    <main className="flex flex-1 flex-col gap-8 p-4 lg:gap-10 lg:p-6 bg-background overflow-x-hidden">
+      <div className="space-y-1">
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+          Monitoramento do Estado de Seca
+        </p>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-primary">
+          {selectedReservoir.nome}
         </h1>
       </div>
 
-      <MetricCards
-        summary={summary}
-        calculatedDays={daysInState}
-        sinceDate={sinceDate}
-        thresholds={gaugeThresholds}
-      />
-
-      <div className="grid gap-4 md:gap-8 lg:grid-cols-1 xl:grid-cols-3">
-        <div className="xl:col-span-2">
-          <VolumeChart
-            data={chart}
-            reservatorioId={selectedReservoir.id}
-            capacidadeMaxima={capacidadeTotal}
-            onRefresh={fetchData}
-          />
+      {/* Métricas */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+        <div className="flex items-start gap-3">
+          <div className="bg-primary/10 p-2.5 rounded-xl shrink-0">
+            <Droplets className="h-5 w-5 text-primary" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground">Volume Atual</p>
+            <p className="text-xl lg:text-2xl font-bold tracking-tight truncate">
+              {summary.volumeAtualHm3}
+              <span className="text-sm font-medium text-muted-foreground ml-1">
+                hm³
+              </span>
+            </p>
+            {capacidadeTotal && capacidadeTotal > 0 && (
+              <p className="text-xs text-muted-foreground/70">
+                Capacidade: {capacidadeTotal.toFixed(2)} hm³
+              </p>
+            )}
+          </div>
         </div>
-        <Card className="border shadow-sm">
-          <CardHeader>
-            <CardTitle>Histórico Recente</CardTitle>
-            <CardDescription>
-              Os 8 registros mais recentes do sistema.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead className="text-right">Volume (hm³)</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentHistory.map((entry, index) => (
-                  <TableRow key={`${entry.Data}-${index}`}>
-                    <TableCell>{entry.Data}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{entry["Estado de Seca"]}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {entry["Volume (hm3)"]}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+
+        <div className="flex items-start gap-3">
+          <div className="hidden lg:flex bg-primary/10 p-2.5 rounded-xl shrink-0">
+            <Gauge className="h-5 w-5 text-primary" />
+          </div>
+          {gaugeThresholds ? (
+            <DroughtGauge
+              percentage={summary.volumePercentual}
+              currentState={summary.estadoAtualSeca}
+              thresholds={gaugeThresholds}
+              width={140}
+              height={80}
+            />
+          ) : (
+            <div className="text-center">
+              <p className="text-xl font-bold">
+                {summary.volumePercentual.toFixed(1)}%
+              </p>
+              <p className="text-xs font-semibold uppercase text-green-600">
+                {summary.estadoAtualSeca}
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-start gap-3">
+          <div className="bg-primary/10 p-2.5 rounded-xl shrink-0">
+            <CalendarDays className="h-5 w-5 text-primary" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground">Desde</p>
+            <p className="text-xl lg:text-2xl font-bold tracking-tight">
+              {sinceDate || "—"}
+            </p>
+            <p className="text-xs text-muted-foreground/70">
+              {diasNoEstado} dias
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-3">
+          <div className="bg-primary/10 p-2.5 rounded-xl shrink-0">
+            <ShieldCheck className="h-5 w-5 text-primary" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground">Medidas ativas</p>
+            <p className="text-xl lg:text-2xl font-bold tracking-tight">
+              {medidas}
+            </p>
+            <p className="text-xs text-muted-foreground/70">
+              {medidas === 1 ? "medida" : "medidas"}
+            </p>
+          </div>
+        </div>
       </div>
+
+      {/* Chart full width */}
+      <div className="min-w-0 overflow-hidden">
+        <VolumeChart
+          data={chart}
+          reservatorioId={selectedReservoir.id}
+          capacidadeMaxima={capacidadeTotal}
+          onRefresh={fetchData}
+        />
+      </div>
+
+      {/* Histórico full width */}
+      <section className="space-y-3 min-w-0 overflow-hidden">
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-sm font-semibold">Histórico Recente</h2>
+          <span className="text-xs text-muted-foreground">
+            — últimos 8 registros
+          </span>
+        </div>
+        <div className="border border-border/40 rounded-xl overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Data</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead className="text-right">Volume (hm³)</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {recentHistory.map((entry, index) => (
+                <TableRow key={`${entry.Data}-${index}`}>
+                  <TableCell>{entry.Data}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{entry["Estado de Seca"]}</Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {entry["Volume (hm3)"]}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </section>
     </main>
   );
 }

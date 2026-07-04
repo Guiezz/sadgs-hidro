@@ -12,6 +12,7 @@ import {
   SimAcude,
   SimulacaoRequest,
   SimulacaoResponse,
+  SimulacaoAnosResponse,
   LoginCredentials,
   AuthResponse,
 } from "./types";
@@ -151,9 +152,21 @@ export const api = {
   // --- SIMULAÇÃO ---
   getSimulacaoAcudes: () => fetchAPI<SimAcude[]>("/simulacao/acudes"),
 
+  getSimulacaoAnos: (reservatorioId: number) =>
+    fetchAPI<SimulacaoAnosResponse>(
+      `/simulacao/anos?reservatorio_id=${reservatorioId}`,
+    ),
+
   runSimulacao: (params: SimulacaoRequest) =>
     fetchAPI<SimulacaoResponse>("/simulacao/run", {
       method: "POST",
       body: JSON.stringify(params),
     }),
+
+  // --- GATILHOS PGPS ---
+  getGatilhosPGPS: (reservatorioId: number) =>
+    fetchAPI<import("./types").GatilhosPGPSResponse>(
+      `/reservatorios/${reservatorioId}/gatilhos-pgps`,
+    ),
+
 };

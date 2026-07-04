@@ -4,14 +4,7 @@ import { useState, useEffect } from "react";
 import { useReservoir } from "@/context/ReservoirContext";
 import { config } from "@/config";
 import { UsoAgua, IdentificationData } from "@/lib/types";
-import { UsoAguaChart } from "@/components/usos/UsoAguaChart";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { UsoAguaChartResponsive } from "@/components/usos/UsoAguaChartResponsive";
 import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import { EmptyReservoirState } from "@/components/dashboard/EmptyReservoirState";
@@ -107,44 +100,48 @@ export default function UsosAguaPage() {
 
   // 4. ESTADO: SUCESSO
   return (
-    <main className="p-4 md:p-8 lg:p-10">
-      <div className="flex items-center mb-6">
-        <h1 className="text-lg font-semibold md:text-2xl">
-          Análise de Uso da Água: {identificationData.nome}
+    <main className="flex flex-1 flex-col gap-6 p-4 lg:gap-8 lg:p-6 bg-background overflow-x-hidden">
+      <div className="space-y-1">
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+          Usos da Água
+        </p>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+          Análise de Consumo
         </h1>
       </div>
 
-      <div>
-        <div className="">
-          <Card className="w-full shadow-lg mb-5">
-            <CardHeader>
-              <CardTitle className="text-lg">Diagrama de Usos</CardTitle>
-              <CardDescription>
-                Representação visual dos principais usos da água no
-                hidrossistema {identificationData.nome}.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {identificationData.url_imagem_usos ? (
-                <div className="relative w-full h-[500px]">
-                  <Image
-                    src={identificationData.url_imagem_usos}
-                    alt={`Diagrama de usos da água do açude ${identificationData.nome}`}
-                    fill
-                    style={{ objectFit: "contain" }}
-                    className="rounded-md"
-                  />
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  Imagem do diagrama de usos não encontrada.
-                </p>
-              )}
-            </CardContent>
-          </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+        <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
+        <div className="p-4 border-b border-border/40">
+          <h3 className="text-sm font-semibold">Diagrama de Usos</h3>
         </div>
+        <div className="p-4">
+          {identificationData.url_imagem_usos ? (
+            <div className="relative w-full aspect-[4/3]">
+              <Image
+                src={identificationData.url_imagem_usos}
+                alt={`Diagrama de usos da água do açude ${identificationData.nome}`}
+                fill
+                style={{ objectFit: "contain" }}
+                className="rounded-md"
+              />
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              Imagem do diagrama de usos não encontrada.
+            </p>
+          )}
+        </div>
+      </div>
 
-        <UsoAguaChart data={chartData} />
+      <div className="bg-card border border-border/40 rounded-xl">
+        <div className="p-4 border-b border-border/40">
+          <h3 className="text-sm font-semibold">Vazão por Setor</h3>
+        </div>
+        <div className="p-4">
+          <UsoAguaChartResponsive data={chartData} />
+        </div>
+      </div>
       </div>
     </main>
   );

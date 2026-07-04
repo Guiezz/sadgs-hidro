@@ -123,6 +123,20 @@ export interface Responsavel {
   cargo: string; // Agora receberá o cargo corretamente
 }
 
+// --- GATILHOS PGPS ---
+
+export interface GatilhoPGPSMes {
+  mes_num: number;
+  normal_hm3: number;
+  alerta_hm3: number;
+  seca_hm3: number;
+  seca_severa_hm3: number;
+}
+
+export interface GatilhosPGPSResponse {
+  gatilhos: GatilhoPGPSMes[];
+}
+
 // --- SIMULAÇÃO ---
 //
 export interface SimAcude {
@@ -140,6 +154,51 @@ export interface SimulacaoRequest {
   data_fim: string; // ISO Date string
   usar_media_historica: boolean;
   demandas_mensais: number[]; // Array com 1 ou 12 valores
+}
+
+// --- COMPARAÇÃO DE DEMANDAS ---
+
+export interface CenarioDemanda {
+  nome: string;
+  percentual: number; // Ex: 100, 90, 85
+}
+
+export interface ResultadoCenario {
+  nome: string;
+  resultados: SimulacaoResultadoPonto[];
+  frequencia_nao_atendida: number;
+  volume_final: number;
+  volume_inicial: number;
+  menor_volume: number;
+  meses_com_falha: number;
+  primeira_falha: string | null; // "Mar/2012" ou null
+  pontos_deficit: number[]; // índices dos meses com déficit
+  ganho_fna: number | null; // % redução vs base
+  ganho_volume: number | null; // % aumento vs base
+  ganho_falhas: number | null; // % redução vs base
+}
+
+export interface EstatisticaDescritiva {
+  min: number;
+  max: number;
+  media: number;
+  mediana: number;
+  p10: number;
+  p90: number;
+}
+
+export interface DistribuicaoResultados {
+  frequencia_nao_atendida: EstatisticaDescritiva;
+  volume_final: EstatisticaDescritiva;
+}
+
+export interface SimulacaoMultiResponse {
+  cenarios: ResultadoCenario[];
+  distribuicao: DistribuicaoResultados;
+}
+
+export interface SimulacaoAnosResponse {
+  anos: number[];
 }
 
 export interface SimulacaoResultadoPonto {

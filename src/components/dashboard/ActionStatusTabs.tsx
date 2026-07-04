@@ -2,7 +2,6 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
@@ -109,12 +108,12 @@ function PaginatedTable({ data }: { data: PlanoAcao[] }) {
 
 export function ActionStatusTabs({ ongoing, completed }: Props) {
   return (
-    <Card>
-      <CardHeader className="flex items-center">
-        <Search className="h-4 w-4 mr-2" />
-        <CardTitle className="m-0">Situação das Ações</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="bg-card border border-border/40 rounded-xl flex flex-col overflow-hidden">
+      <div className="flex items-center gap-2 p-4 border-b border-border/40">
+        <Search className="h-4 w-4 text-muted-foreground" />
+        <h3 className="text-sm font-semibold">Situação das Ações</h3>
+      </div>
+      <div className="p-4">
         <Tabs defaultValue="ongoing">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="ongoing">
@@ -145,7 +144,7 @@ export function ActionStatusTabs({ ongoing, completed }: Props) {
             )}
           </TabsContent>
         </Tabs>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

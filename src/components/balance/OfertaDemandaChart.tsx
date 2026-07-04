@@ -1,13 +1,6 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   BarChart,
   Bar,
   XAxis,
@@ -25,15 +18,15 @@ interface Props {
 
 export function OfertaDemandaChart({ data }: Props) {
   return (
-    <Card className="w-full shadow-lg">
-      <CardHeader>
-        <CardTitle className="text-lg">Relação Oferta vs. Demanda</CardTitle>
-        <CardDescription>
+    <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
+      <div className="p-4 border-b border-border/40">
+        <h3 className="text-sm font-semibold">Relação Oferta vs. Demanda</h3>
+        <p className="text-sm text-muted-foreground mt-1">
           Comparativo entre a oferta hídrica e a demanda total para diferentes
           garantias.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+        </p>
+      </div>
+      <div className="p-4">
         <div className="h-[300px] w-full">
           <ResponsiveContainer>
             <BarChart
@@ -83,7 +76,7 @@ export function OfertaDemandaChart({ data }: Props) {
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

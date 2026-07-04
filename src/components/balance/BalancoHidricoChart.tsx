@@ -1,13 +1,6 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   BarChart,
   Bar,
   XAxis,
@@ -26,14 +19,14 @@ interface Props {
 
 export function BalancoHidricoChart({ data }: Props) {
   return (
-    <Card className="w-full shadow-lg">
-      <CardHeader>
-        <CardTitle className="text-lg">Afluência Mensal</CardTitle>
-        <CardDescription>
+    <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
+      <div className="p-4 border-b border-border/40">
+        <h3 className="text-sm font-semibold">Afluência Mensal</h3>
+        <p className="text-sm text-muted-foreground mt-1">
           Vazão de água mensal que chega ao reservatório em determinado mês.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+        </p>
+      </div>
+      <div className="p-4">
         <div className="h-[300px] w-full">
           <ResponsiveContainer>
             <BarChart
@@ -72,7 +65,7 @@ export function BalancoHidricoChart({ data }: Props) {
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

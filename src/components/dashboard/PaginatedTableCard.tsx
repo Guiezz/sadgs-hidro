@@ -2,7 +2,6 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -54,12 +53,12 @@ export function PaginatedTableCard<T>({
   };
 
   return (
-    <Card className="flex flex-col">
-      <CardHeader className="flex flex-row items-center gap-2">
+    <div className="bg-card border border-border/40 rounded-xl flex flex-col overflow-hidden">
+      <div className="flex items-center gap-2 p-4 border-b border-border/40">
         {icon}
-        <CardTitle>{title}</CardTitle>
-      </CardHeader>
-      <CardContent className="flex-grow flex flex-col justify-between">
+        <h3 className="text-sm font-semibold">{title}</h3>
+      </div>
+      <div className="flex-grow flex flex-col justify-between p-4">
         <div className="border rounded-lg overflow-x-auto">
           <Table className="table-fixed w-full">
             <TableHeader>
@@ -118,7 +117,7 @@ export function PaginatedTableCard<T>({
             </Pagination>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

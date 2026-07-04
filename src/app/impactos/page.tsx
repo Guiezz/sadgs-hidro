@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useReservoir } from "@/context/ReservoirContext";
 import { config } from "@/config";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { IdentificationData } from "@/lib/types";
@@ -93,23 +92,25 @@ export default function ImpactosPage() {
   const nomeReservatorio = identificationData?.nome || "O Hidrossistema";
   const nomeMunicipio = identificationData?.municipio || "na região";
 
-  // 4. ESTADO: SUCESSO
   return (
     <main className="flex flex-1 flex-col gap-8 p-4 lg:p-8 bg-background">
-      <div className="flex items-center">
-        <h1 className="text-lg font-semibold md:text-2xl text-foreground">
-          Impactos da Seca e Participação Social
+      <div className="space-y-1">
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+          Participação Social
+        </p>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+          Impactos da Seca
         </h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         {/* Coluna da Esquerda: Textos e Botão */}
         <div className="flex flex-col gap-6">
-          <Card className="border shadow-sm">
-            <CardHeader>
-              <CardTitle>Formulário de Percepção de Impactos</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-muted-foreground leading-relaxed">
+          <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
+            <div className="p-4 border-b border-border/40">
+              <h3 className="text-sm font-semibold">Formulário de Percepção de Impactos</h3>
+            </div>
+            <div className="p-4 space-y-4 text-muted-foreground leading-relaxed">
               <p>
                 Este formulário tem o objetivo de obter informações sobre a
                 percepção pessoal do impacto das secas no cotidiano individual,
@@ -126,14 +127,14 @@ export default function ImpactosPage() {
                 Esses registros serão fundamentais para a descrição adequada do
                 impacto das secas.
               </p>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card className="bg-primary/5 border-primary/20 shadow-sm">
-            <CardHeader>
-              <CardTitle>O Contexto Local</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-muted-foreground leading-relaxed">
+          <div className="bg-primary/5 border border-primary/20 rounded-xl overflow-hidden">
+            <div className="p-4 border-b border-primary/10">
+              <h3 className="text-sm font-semibold">O Contexto Local</h3>
+            </div>
+            <div className="p-4 space-y-4 text-muted-foreground leading-relaxed">
               <p>
                 O{" "}
                 <span className="font-bold text-foreground">
@@ -153,34 +154,36 @@ export default function ImpactosPage() {
                 garantindo segurança hídrica e qualidade de vida para a
                 população.
               </p>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         {/* Coluna da Direita: Gráfico e Botão */}
-        <div className="flex flex-col items-center justify-center gap-8 p-4 bg-card rounded-lg border shadow-sm">
-          <h2 className="text-xl font-semibold text-foreground">
-            Principais Impactos
-          </h2>
-          <div className="relative w-full h-full max-w-md aspect-square">
-            <Image
-              src="/infografico/infografico.png"
-              alt="Infográfico dos Principais Impactos"
-              fill
-              style={{ objectFit: "contain" }}
-              sizes="(max-width: 768px) 100vw, 50vw"
-              priority
-            />
+        <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
+          <div className="p-4 border-b border-border/40">
+            <h3 className="text-sm font-semibold">Principais Impactos</h3>
           </div>
-          <Button size="lg" asChild className="mt-8 w-full max-w-xs shadow-md">
-            <Link
-              href="https://cepas.ufc.br/pt_br/avaliacao-de-impacto-das-secas/"
-              target="_blank"
-            >
-              Acesse o formulário aqui
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
+          <div className="p-4 flex flex-col items-center gap-6">
+            <div className="relative w-full max-w-md aspect-square ring-1 ring-border/40 rounded-lg overflow-hidden">
+              <Image
+                src="/infografico/infografico.png"
+                alt="Infográfico dos Principais Impactos"
+                fill
+                style={{ objectFit: "contain" }}
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority
+              />
+            </div>
+            <Button size="lg" asChild className="w-full max-w-xs shadow-md">
+              <Link
+                href="https://cepas.ufc.br/pt_br/avaliacao-de-impacto-das-secas/"
+                target="_blank"
+              >
+                Acesse o formulário aqui
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     </main>

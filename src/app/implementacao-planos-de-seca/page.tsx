@@ -4,166 +4,103 @@ import { useState, useEffect } from "react";
 import { useReservoir } from "@/context/ReservoirContext";
 import { config } from "@/config";
 
-import {
-  DashboardSummary,
-  PlanoAcao,
-  HistoryEntry,
-  ChartDataPoint,
-} from "@/lib/types";
-import { MetricCards } from "@/components/dashboard/MetricCards";
+import { DashboardSummary, PlanoAcao } from "@/lib/types";
 import { PaginatedTableMedidas } from "@/components/dashboard/PaginatedTableMedidas";
 import { ActionStatusTabs } from "@/components/dashboard/ActionStatusTabs";
-import { GaugeThresholds } from "@/components/dashboard/DroughtGauge";
 import { Loader2 } from "lucide-react";
 import { EmptyReservoirState } from "@/components/dashboard/EmptyReservoirState";
 
-// Função auxiliar para converter strings de data
-function parseDate(dateStr: string): Date {
-  if (dateStr.includes("/")) {
-    const [day, month, year] = dateStr.split("/").map(Number);
-    return new Date(year, month - 1, day);
-  }
-  return new Date(dateStr);
+const estadoColors: Record<string, { text: string; bg: string; dot: string }> = {
+  Normal: { text: "text-green-700", bg: "bg-green-100", dot: "bg-green-500" },
+  Alerta: { text: "text-yellow-700", bg: "bg-yellow-100", dot: "bg-yellow-500" },
+  Seca: { text: "text-orange-700", bg: "bg-orange-100", dot: "bg-orange-500" },
+  "Seca Severa": { text: "text-red-700", bg: "bg-red-100", dot: "bg-red-500" },
+};
+
+function EstadoBadge({ estado }: { estado: string }) {
+  const colors =
+    estadoColors[estado] ?? {
+      text: "text-[var(--estado-alerta-text)]",
+      bg: "bg-[var(--estado-alerta-bg)]",
+      dot: "bg-[var(--estado-alerta-dot)]",
+    };
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${colors.bg} ${colors.text}`}
+    >
+      <span className={`w-2 h-2 rounded-full ${colors.dot}`} />
+      {estado}
+    </span>
+  );
 }
 
 export default function ImplementacaoPlanosPage() {
-  const { selectedReservoir, isLoading: isReservoirLoading } = useReservoir();
+  const { selectedReservoir } = useReservoir();
 
   const [isLoadingPage, setIsLoadingPage] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [ongoingActions, setOngoingActions] = useState<PlanoAcao[]>([]);
   const [completedActions, setCompletedActions] = useState<PlanoAcao[]>([]);
 
-  // Estado para armazenar os dados do gráfico
-  const [chart, setChart] = useState<ChartDataPoint[]>([]);
-
-  // Estado para passar as metas calculadas para o Card
-  const [currentThresholds, setCurrentThresholds] = useState<
-    GaugeThresholds | undefined
-  >(undefined);
-
-  // Estados para o cálculo de tempo
-  const [daysInState, setDaysInState] = useState<number>(0);
-  const [sinceDate, setSinceDate] = useState<string>("");
-
   useEffect(() => {
-    // Se não houver reservatório, paramos o loading para mostrar o EmptyState
     if (!selectedReservoir) {
       setIsLoadingPage(false);
       return;
     }
 
-    const fetchDataForReservoir = async () => {
+    const fetchData = async () => {
       setIsLoadingPage(true);
       setError(null);
       const id = selectedReservoir.id;
 
       try {
-        const [summaryRes, historyRes, ongoingRes, completedRes, chartRes] =
-          await Promise.all([
-            fetch(
-              `${config.apiBaseUrl}/reservatorios/${id}/dashboard/summary`,
-              { cache: "no-store" },
-            ),
-            fetch(`${config.apiBaseUrl}/reservatorios/${id}/history`, {
-              cache: "no-store",
-            }),
-            fetch(`${config.apiBaseUrl}/reservatorios/${id}/ongoing-actions`, {
-              cache: "no-store",
-            }),
-            fetch(
-              `${config.apiBaseUrl}/reservatorios/${id}/completed-actions`,
-              { cache: "no-store" },
-            ),
-            fetch(
-              `${config.apiBaseUrl}/reservatorios/${id}/dashboard/volume-chart`,
-              { cache: "no-store" },
-            ),
-          ]);
+        const [summaryRes, ongoingRes, completedRes] = await Promise.all([
+          fetch(
+            `${config.apiBaseUrl}/reservatorios/${id}/dashboard/summary`,
+            { cache: "no-store" },
+          ),
+          fetch(
+            `${config.apiBaseUrl}/reservatorios/${id}/ongoing-actions`,
+            { cache: "no-store" },
+          ),
+          fetch(
+            `${config.apiBaseUrl}/reservatorios/${id}/completed-actions`,
+            { cache: "no-store" },
+          ),
+        ]);
 
-        if (
-          !summaryRes.ok ||
-          !historyRes.ok ||
-          !ongoingRes.ok ||
-          !completedRes.ok ||
-          !chartRes.ok
-        ) {
+        if (!summaryRes.ok || !ongoingRes.ok || !completedRes.ok) {
           throw new Error("Falha ao buscar os dados do reservatório.");
         }
 
-        const summaryData = await summaryRes.json();
-        const historyData: HistoryEntry[] = await historyRes.json();
-        const chartData: ChartDataPoint[] = await chartRes.json();
-
-        setSummary(summaryData);
+        setSummary(await summaryRes.json());
         setOngoingActions(await ongoingRes.json());
         setCompletedActions(await completedRes.json());
-        setChart(chartData);
-
-        // --- CÁLCULO DAS METAS (GAUGE) ---
-        if (chartData.length > 0) {
-          const lastPoint = chartData[chartData.length - 1];
-          setCurrentThresholds({
-            meta1: lastPoint.meta1,
-            meta2: lastPoint.meta2,
-            meta3: lastPoint.meta3,
-          });
-        } else {
-          setCurrentThresholds(undefined);
-        }
-
-        // --- LÓGICA DE CÁLCULO DO TEMPO NO ESTADO ---
-        if (historyData && historyData.length > 0) {
-          const sortedHistory = [...historyData];
-          const currentEntry = sortedHistory[sortedHistory.length - 1];
-          const currentState = currentEntry["Estado de Seca"];
-
-          let startDate = currentEntry.Data;
-
-          for (let i = sortedHistory.length - 1; i >= 0; i--) {
-            if (sortedHistory[i]["Estado de Seca"] !== currentState) {
-              break;
-            }
-            startDate = sortedHistory[i].Data;
-          }
-
-          const start = parseDate(startDate);
-          const today = new Date();
-          start.setHours(0, 0, 0, 0);
-          today.setHours(0, 0, 0, 0);
-
-          const diffTime = Math.abs(today.getTime() - start.getTime());
-          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-          setDaysInState(diffDays);
-          setSinceDate(startDate);
-        }
       } catch (err) {
         console.error(err);
         setError(
-          err instanceof Error ? err.message : "Ocorreu um erro desconhecido.",
+          err instanceof Error
+            ? err.message
+            : "Ocorreu um erro desconhecido.",
         );
       } finally {
         setIsLoadingPage(false);
       }
     };
 
-    fetchDataForReservoir();
+    fetchData();
   }, [selectedReservoir]);
 
-  // 1. ESTADO: NADA SELECIONADO
   if (!selectedReservoir) {
     return (
       <EmptyReservoirState
         title="Implementação de Planos Indisponível"
-        description="Selecione um hidrossistema no topo da página para visualizar o resumo de métricas, medidas recomendadas e status das ações."
+        description="Selecione um hidrossistema no topo da página para visualizar medidas recomendadas e status das ações."
       />
     );
   }
 
-  // 2. ESTADO: CARREGANDO
   if (isLoadingPage) {
     return (
       <main className="flex flex-1 items-center justify-center p-4">
@@ -177,7 +114,6 @@ export default function ImplementacaoPlanosPage() {
     );
   }
 
-  // 3. ESTADO: ERRO
   if (error || !summary) {
     return (
       <main className="flex flex-1 items-center justify-center p-4">
@@ -186,31 +122,52 @@ export default function ImplementacaoPlanosPage() {
             Erro ao carregar os dados
           </h1>
           <p className="text-muted-foreground">
-            {error || "Verifique se a API está em execução e tente novamente."}
+            {error ||
+              "Verifique se a API está em execução e tente novamente."}
           </p>
         </div>
       </main>
     );
   }
 
-  // 4. ESTADO: SUCESSO
+  const medidasCount = summary.medidasRecomendadas?.length ?? 0;
+  const ongoingCount = ongoingActions.length;
+  const completedCount = completedActions.length;
+
   return (
-    <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
-      <div className="flex items-center">
-        <h1 className="text-lg font-semibold md:text-2xl">
-          Implementação nos planos de seca do reservatório:{" "}
-          <span className="text-primary">{selectedReservoir.nome}</span>
+    <main className="flex flex-1 flex-col gap-6 p-4 lg:gap-8 lg:p-6 bg-background overflow-x-hidden">
+      <div className="space-y-1">
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+          Implementação nos planos de seca
+        </p>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-primary">
+          {selectedReservoir.nome}
         </h1>
       </div>
 
-      <MetricCards
-        summary={summary}
-        calculatedDays={daysInState}
-        sinceDate={sinceDate}
-        thresholds={currentThresholds}
-      />
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <EstadoBadge estado={summary.estadoAtualSeca} />
+        <span className="text-sm text-muted-foreground">
+          <strong className="text-foreground">{medidasCount}</strong>{" "}
+          {medidasCount === 1 ? "medida ativa" : "medidas ativas"}
+        </span>
+        <span className="text-sm text-muted-foreground/40 hidden sm:inline">
+          ·
+        </span>
+        <span className="text-sm text-muted-foreground">
+          <strong className="text-foreground">{ongoingCount}</strong> em
+          andamento
+          {completedCount > 0 && (
+            <>
+              {" · "}
+              <strong className="text-foreground">{completedCount}</strong>{" "}
+              concluídas
+            </>
+          )}
+        </span>
+      </div>
 
-      <div className="grid gap-4 md:gap-8 lg:grid-cols-2">
+      <div className="grid gap-6 lg:gap-8 lg:grid-cols-2">
         <PaginatedTableMedidas
           data={summary.medidasRecomendadas}
           estado={summary.estadoAtualSeca}
