@@ -20,9 +20,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { EmptyReservoirState } from "@/components/dashboard/EmptyReservoirState";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+} from "@/components/ui/pagination";
+import { Button } from "@/components/ui/button";
 
 export default function ActionPlanClient() {
   const { selectedReservoir } = useReservoir();
@@ -37,6 +42,8 @@ export default function ActionPlanClient() {
   const [plans, setPlans] = useState<PlanoAcao[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isFiltersLoading, setIsFiltersLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     // Se não houver reservatório, paramos o estado de carregamento dos filtros
@@ -79,6 +86,7 @@ export default function ActionPlanClient() {
 
   useEffect(() => {
     if (!selectedReservoir) return;
+    setCurrentPage(1);
 
     const fetchPlans = async () => {
       setIsLoading(true);
@@ -108,6 +116,11 @@ export default function ActionPlanClient() {
     setAcao("");
   };
 
+  const totalPages = Math.max(1, Math.ceil(plans.length / itemsPerPage));
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedPlans = plans.slice(startIndex, endIndex);
+
   // 1. ESTADO: NADA SELECIONADO
   if (!selectedReservoir) {
     return (
@@ -133,11 +146,11 @@ export default function ActionPlanClient() {
   // 3. ESTADO: SUCESSO
   return (
     <div className="flex flex-col gap-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Filtrar Planos de Ação</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
+        <div className="p-4 border-b border-border/40">
+          <h3 className="text-sm font-semibold">Filtrar Planos de Ação</h3>
+        </div>
+        <div className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <Select value={estado} onValueChange={setEstado}>
               <SelectTrigger className="w-full truncate">
@@ -206,14 +219,14 @@ export default function ActionPlanClient() {
               Limpar Filtros
             </button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Resultados</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
+        <div className="p-4 border-b border-border/40">
+          <h3 className="text-sm font-semibold">Resultados</h3>
+        </div>
+        <div className="p-4">
           <div className="border rounded-lg overflow-x-auto">
             <Table className="table-fixed w-full">
               <TableHeader>
@@ -234,7 +247,7 @@ export default function ActionPlanClient() {
                     </TableCell>
                   </TableRow>
                 ) : plans.length > 0 ? (
-                  plans.map((plan, index) => (
+                  paginatedPlans.map((plan, index) => (
                     <TableRow key={index}>
                       <TableCell className="whitespace-normal break-words align-top py-4">
                         {plan.descricao_acao}
@@ -260,8 +273,64 @@ export default function ActionPlanClient() {
               </TableBody>
             </Table>
           </div>
-        </CardContent>
-      </Card>
+          {totalPages > 1 && (
+            <div className="mt-4">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        setCurrentPage((p) => Math.max(1, p - 1))
+                      }
+                      disabled={currentPage === 1}
+                    >
+                      Anterior
+                    </Button>
+                  </PaginationItem>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(
+                      (p) =>
+                        p === 1 ||
+                        p === totalPages ||
+                        Math.abs(p - currentPage) <= 1,
+                    )
+                    .map((p, idx, arr) => (
+                      <PaginationItem key={p}>
+                        {idx > 0 && arr[idx - 1] !== p - 1 && (
+                          <span className="px-1 text-muted-foreground">
+                            ...
+                          </span>
+                        )}
+                        <Button
+                          variant={p === currentPage ? "default" : "ghost"}
+                          size="sm"
+                          onClick={() => setCurrentPage(p)}
+                          className="min-w-9"
+                        >
+                          {p}
+                        </Button>
+                      </PaginationItem>
+                    ))}
+                  <PaginationItem>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        setCurrentPage((p) => Math.min(totalPages, p + 1))
+                      }
+                      disabled={currentPage === totalPages}
+                    >
+                      Próximo
+                    </Button>
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
