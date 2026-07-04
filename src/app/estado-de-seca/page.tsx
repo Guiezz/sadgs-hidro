@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Clock, CalendarDays, ShieldCheck, Droplets, Activity } from "lucide-react";
+import { Loader2, Clock, CalendarDays, ShieldCheck, Droplets, Gauge } from "lucide-react";
 import { EmptyReservoirState } from "@/components/dashboard/EmptyReservoirState";
 
 // Função auxiliar para converter strings de data (ex: "dd/mm/yyyy") em objetos Date
@@ -224,7 +224,7 @@ export default function EstadoDeSecaPage() {
 
         <div className="flex flex-col items-center gap-2">
           <div className="bg-primary/10 p-2.5 rounded-xl">
-            <Activity className="h-5 w-5 text-primary" />
+            <Gauge className="h-5 w-5 text-primary" />
           </div>
           {gaugeThresholds ? (
             <DroughtGauge
