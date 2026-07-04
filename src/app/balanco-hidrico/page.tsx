@@ -88,17 +88,19 @@ export default function BalancoHidricoPage() {
 
   // 4. ESTADO: SUCESSO
   return (
-    <main className="px-2 md:px-6 lg:px-8 py-8 space-y-8 bg-background flex-1">
-      <div className="flex items-center">
-        <h1 className="text-lg font-semibold md:text-2xl">
-          Balanço Hídrico:{" "}
-          <span className="text-primary">{selectedReservoir.nome}</span>
+    <main className="flex flex-1 flex-col gap-6 p-4 lg:gap-8 lg:p-6 bg-background overflow-x-hidden">
+      <div className="space-y-1">
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+          Balanço Hídrico
+        </p>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+          {selectedReservoir.nome}
         </h1>
       </div>
 
       <OfertaDemandaChart data={chartData.ofertaDemanda} />
 
-      <div className="grid gap-8 md:grid-cols-2">
+      <div className="grid gap-6 lg:gap-8 md:grid-cols-2">
         <ComposicaoDemandaChart data={chartData.composicaoDemanda} />
         <BalancoHidricoChart data={chartData.balancoMensal} />
       </div>

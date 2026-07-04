@@ -1,13 +1,6 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   PieChart,
   Pie,
   Cell,
@@ -31,14 +24,14 @@ const COLORS = [
 
 export function ComposicaoDemandaChart({ data }: Props) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Composição da Demanda</CardTitle>
-        <CardDescription>
+    <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
+      <div className="p-4 border-b border-border/40">
+        <h3 className="text-sm font-semibold">Composição da Demanda</h3>
+        <p className="text-sm text-muted-foreground mt-1">
           Percentual de uso da água por setor em condições de normalidade.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+        </p>
+      </div>
+      <div className="p-4">
         <div className="w-full h-[300px]">
           <ResponsiveContainer>
             <PieChart>
@@ -77,7 +70,7 @@ export function ComposicaoDemandaChart({ data }: Props) {
             </PieChart>
           </ResponsiveContainer>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
