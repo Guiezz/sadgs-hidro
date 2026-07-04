@@ -82,12 +82,12 @@ export default function VisaoGeralPage() {
   const paragraphs = data.descricao.split("\n").filter((p) => p.trim() !== "");
 
   return (
-    <main className="flex flex-1 flex-col bg-background">
+    <>
       {/* Hero */}
-      <section className="relative -mx-4 lg:-mx-8 -mt-4 sm:-mt-6 h-[40vh] md:h-[45vh] overflow-hidden bg-gradient-to-br from-primary/12 via-primary/5 to-background">
+      <section className="relative -mx-4 lg:-mx-8 -mt-4 h-[20vh] sm:h-[30vh] md:h-[30vh] overflow-hidden bg-gradient-to-br from-primary/12 via-primary/5 to-background">
         <div className="absolute inset-0 bg-gradient-to-b from-background/60 to-background/5" />
 
-        <div className="absolute top-6 md:bottom-0 md:top-auto left-0 right-0 p-6 md:p-10 lg:p-14 max-w-7xl mx-auto">
+        <div className="absolute inset-0 flex flex-col justify-center sm:justify-end p-6 md:p-10 lg:p-14 max-w-7xl mx-auto">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-background/80 backdrop-blur-sm text-xs font-medium text-muted-foreground mb-4 border border-border/40">
               <MapPin className="h-3 w-3 text-primary" />
@@ -207,7 +207,7 @@ export default function VisaoGeralPage() {
           </div>
         </div>
       </section>
-    </main>
+    </>
   );
 }
 
@@ -222,9 +222,7 @@ function StatItem({
 }) {
   return (
     <div className="flex items-start gap-3 bg-background rounded-xl p-4 border border-border/40 shadow-sm">
-      <div className="bg-primary/10 p-2 rounded-lg shrink-0 mt-0.5">
-        {icon}
-      </div>
+      <div className="bg-primary/10 p-2 rounded-lg shrink-0 mt-0.5">{icon}</div>
       <div className="min-w-0">
         <p className="text-xs text-muted-foreground">{label}</p>
         <p className="font-semibold text-foreground break-words">{value}</p>
