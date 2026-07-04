@@ -222,8 +222,8 @@ export default function EstadoDeSecaPage() {
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-2">
-          <div className="bg-primary/10 p-2.5 rounded-xl">
+        <div className="flex items-start gap-3">
+          <div className="bg-primary/10 p-2.5 rounded-xl shrink-0">
             <Gauge className="h-5 w-5 text-primary" />
           </div>
           {gaugeThresholds ? (
