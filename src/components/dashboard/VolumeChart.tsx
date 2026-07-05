@@ -61,7 +61,12 @@ export function VolumeChart({
       );
 
       if (!response.ok) {
-        throw new Error("Falha ao atualizar dados.");
+        if (response.status === 404) {
+          alert("Serviço de atualização FUNCEME indisponível no momento.");
+        } else {
+          throw new Error("Falha ao atualizar dados.");
+        }
+        return;
       }
 
       const result = await response.json();
