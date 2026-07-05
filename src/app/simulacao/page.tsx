@@ -287,7 +287,6 @@ export default function SimulacaoPage() {
     const baseParams = {
       reservatorio_id: parseInt(selectedAcudeId),
       volume_inicial: volAbsoluto,
-      volume_final: volAbsoluto,
       data_inicio: `${filtroDataInicio}T00:00:00.000Z`,
       data_fim: `${filtroDataFim}T00:00:00.000Z`,
       usar_media_historica: false,

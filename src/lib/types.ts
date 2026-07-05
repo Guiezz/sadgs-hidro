@@ -70,7 +70,7 @@ export interface PlanoAcao {
   descricao_acao: string;
   responsaveis: string;
   classes_acao: string;
-  tipo_impactos: string;
+  tipos_impactos: string;
   problemas: string;
   orgaos_envolvidos: string;
   indicadores: string;
@@ -149,7 +149,6 @@ export interface SimAcude {
 export interface SimulacaoRequest {
   reservatorio_id: number;
   volume_inicial: number;
-  volume_final: number;
   data_inicio: string; // ISO Date string (YYYY-MM-DD)
   data_fim: string; // ISO Date string
   usar_media_historica: boolean;
