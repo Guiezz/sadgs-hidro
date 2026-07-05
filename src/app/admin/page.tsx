@@ -52,6 +52,7 @@ import {
   ListChecks,
   CircleDashed,
   Filter,
+  Database,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -74,6 +75,10 @@ export default function AdminPage() {
   const [editingAction, setEditingAction] = useState<PlanoAcao | null>(null);
   const [newStatus, setNewStatus] = useState<string>("");
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // Estados do backfill (admin only)
+  const [backfillDataInicio, setBackfillDataInicio] = useState("2020-01-01");
+  const [isBackfilling, setIsBackfilling] = useState(false);
 
   // Proteção de rota
   useEffect(() => {
@@ -143,6 +148,22 @@ export default function AdminPage() {
       toast.error(error.message || "Erro ao atualizar status");
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleBackfill = async () => {
+    if (!selectedReservoir) return;
+    setIsBackfilling(true);
+    try {
+      const resp = await api.runFuncemeBackfill(
+        selectedReservoir.id,
+        backfillDataInicio,
+      );
+      toast.success(`${resp.message} — ${resp.registros} registros inseridos.`);
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao executar backfill");
+    } finally {
+      setIsBackfilling(false);
     }
   };
 
@@ -222,7 +243,7 @@ export default function AdminPage() {
 
             <Tabs defaultValue="ongoing" className="w-full">
               <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between px-6 py-4 bg-muted/5 gap-4 border-b">
-                <TabsList className="grid w-full max-w-[600px] grid-cols-3">
+                <TabsList className={`grid w-full max-w-[600px] ${user?.role === "admin" ? "grid-cols-4" : "grid-cols-3"}`}>
                   <TabsTrigger value="not_started" className="gap-2">
                     <CircleDashed className="h-4 w-4" />
                     Não Iniciadas
@@ -235,6 +256,12 @@ export default function AdminPage() {
                     <CheckCircle2 className="h-4 w-4" />
                     Concluídas
                   </TabsTrigger>
+                  {user?.role === "admin" && (
+                    <TabsTrigger value="backfill" className="gap-2">
+                      <Database className="h-4 w-4" />
+                      Backfill
+                    </TabsTrigger>
+                  )}
                 </TabsList>
 
                 <div className="flex items-center gap-3 w-full lg:w-auto bg-background p-1.5 rounded-md border border-input shadow-sm">
@@ -286,6 +313,53 @@ export default function AdminPage() {
                         emptyMessage="Nenhuma ação concluída encontrada para este filtro."
                       />
                     </TabsContent>
+                    {user?.role === "admin" && (
+                      <TabsContent value="backfill" className="m-0">
+                        <div className="space-y-6">
+                          <div className="p-6 rounded-lg border border-dashed border-amber-300 bg-amber-50/50">
+                            <h3 className="text-sm font-semibold text-amber-800 mb-2">
+                              Backfill de Dados Históricos FUNCEME
+                            </h3>
+                            <p className="text-sm text-amber-700/80 mb-4">
+                              Busca dados históricos de volume desde a data
+                              informada e insere no banco, evitando duplicatas.
+                              Requer permissão de administrador.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4">
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-xs font-bold text-muted-foreground uppercase">
+                                  Data Início
+                                </label>
+                                <input
+                                  type="date"
+                                  value={backfillDataInicio}
+                                  onChange={(e) =>
+                                    setBackfillDataInicio(e.target.value)
+                                  }
+                                  className="h-10 px-3 rounded-md border bg-background text-sm"
+                                />
+                              </div>
+                              <div className="flex items-end">
+                                <Button
+                                  onClick={handleBackfill}
+                                  disabled={isBackfilling || !selectedReservoir}
+                                  className="gap-2"
+                                >
+                                  {isBackfilling ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <Database className="h-4 w-4" />
+                                  )}
+                                  {isBackfilling
+                                    ? "Executando..."
+                                    : "Executar Backfill"}
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+                    )}
                   </>
                 )}
               </CardContent>

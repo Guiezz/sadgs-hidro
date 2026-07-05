@@ -123,6 +123,17 @@ export interface Responsavel {
   cargo: string; // Agora receberá o cargo corretamente
 }
 
+// --- BACKFILL FUNCEME ---
+
+export interface BackfillRequest {
+  data_inicio: string; // YYYY-MM-DD
+}
+
+export interface BackfillResponse {
+  message: string;
+  registros: number;
+}
+
 // --- GATILHOS PGPS ---
 
 export interface GatilhoPGPSMes {
