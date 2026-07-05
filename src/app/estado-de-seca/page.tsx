@@ -281,9 +281,7 @@ export default function EstadoDeSecaPage() {
       <div className="min-w-0 overflow-hidden">
         <VolumeChart
           data={chart}
-          reservatorioId={selectedReservoir.id}
           capacidadeMaxima={capacidadeTotal}
-          onRefresh={fetchData}
         />
       </div>
 

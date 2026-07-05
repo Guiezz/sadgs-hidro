@@ -1,11 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { ChartDataPoint } from "@/lib/types";
 
-import { Button } from "@/components/ui/button";
-import { config } from "@/config";
-import { RefreshCw, Info } from "lucide-react";
+import { Info } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -27,19 +24,13 @@ import { ptBR } from "date-fns/locale/pt-BR";
 
 interface VolumeChartProps {
   data: ChartDataPoint[];
-  reservatorioId?: number;
-  capacidadeMaxima?: number; // 1. Nova prop adicionada
-  onRefresh?: () => void;
+  capacidadeMaxima?: number;
 }
 
 export function VolumeChart({
   data,
-  reservatorioId,
-  capacidadeMaxima, // 2. Recebendo a prop
-  onRefresh,
+  capacidadeMaxima,
 }: VolumeChartProps) {
-  const [isUpdating, setIsUpdating] = useState(false);
-
   // Converte as metas para a escala de porcentagem (0-100)
   const chartData = data.map((point) => ({
     ...point,
@@ -47,41 +38,6 @@ export function VolumeChart({
     meta2: point.meta2 * 100,
     meta3: point.meta3 * 100,
   }));
-
-  const handleUpdateData = async () => {
-    if (!reservatorioId) return;
-
-    setIsUpdating(true);
-    try {
-      const response = await fetch(
-        `${config.apiBaseUrl}/reservatorios/${reservatorioId}/funceme-update`,
-        {
-          method: "POST",
-        },
-      );
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          alert("Serviço de atualização FUNCEME indisponível no momento.");
-        } else {
-          throw new Error("Falha ao atualizar dados.");
-        }
-        return;
-      }
-
-      const result = await response.json();
-      alert(result.status || "Dados atualizados com sucesso!");
-
-      if (onRefresh) {
-        onRefresh();
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Erro ao buscar novos dados da FUNCEME.");
-    } finally {
-      setIsUpdating(false);
-    }
-  };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -127,21 +83,6 @@ export function VolumeChart({
               </TooltipContent>
             </ShadcnTooltip>
           </TooltipProvider>
-
-          {reservatorioId && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleUpdateData}
-              disabled={isUpdating}
-              title="Buscar dados mais recentes da FUNCEME"
-            >
-              <RefreshCw
-                className={`mr-2 h-4 w-4 ${isUpdating ? "animate-spin" : ""}`}
-              />
-              {isUpdating ? "Atualizando..." : "Atualizar Dados"}
-            </Button>
-          )}
         </div>
       </div>
 

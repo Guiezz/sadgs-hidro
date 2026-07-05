@@ -15,6 +15,7 @@ import {
   SimulacaoAnosResponse,
   LoginCredentials,
   AuthResponse,
+  BackfillResponse,
 } from "./types";
 import { config } from "@/config";
 
@@ -167,6 +168,16 @@ export const api = {
   getGatilhosPGPS: (reservatorioId: number) =>
     fetchAPI<import("./types").GatilhosPGPSResponse>(
       `/reservatorios/${reservatorioId}/gatilhos-pgps`,
+    ),
+
+  // --- BACKFILL FUNCEME (Admin) ---
+  runFuncemeBackfill: (reservatorioId: number, dataInicio: string) =>
+    fetchAPI<BackfillResponse>(
+      `/reservatorios/${reservatorioId}/funceme-backfill`,
+      {
+        method: "POST",
+        body: JSON.stringify({ data_inicio: dataInicio }),
+      },
     ),
 
 };
