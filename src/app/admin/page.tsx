@@ -243,7 +243,7 @@ export default function AdminPage() {
 
             <Tabs defaultValue="ongoing" className="w-full">
               <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between px-6 py-4 bg-muted/5 gap-4 border-b">
-                <TabsList className={`grid w-full max-w-[600px] ${user?.role === "admin" ? "grid-cols-4" : "grid-cols-3"}`}>
+                <TabsList className={`grid w-full max-w-[600px] ${user?.role === "admin_cogerh" ? "grid-cols-4" : "grid-cols-3"}`}>
                   <TabsTrigger value="not_started" className="gap-2">
                     <CircleDashed className="h-4 w-4" />
                     Não Iniciadas
@@ -256,7 +256,7 @@ export default function AdminPage() {
                     <CheckCircle2 className="h-4 w-4" />
                     Concluídas
                   </TabsTrigger>
-                  {user?.role === "admin" && (
+                  {user?.role === "admin_cogerh" && (
                     <TabsTrigger value="backfill" className="gap-2">
                       <Database className="h-4 w-4" />
                       Backfill
@@ -313,7 +313,7 @@ export default function AdminPage() {
                         emptyMessage="Nenhuma ação concluída encontrada para este filtro."
                       />
                     </TabsContent>
-                    {user?.role === "admin" && (
+                    {user?.role === "admin_cogerh" && (
                       <TabsContent value="backfill" className="m-0">
                         <div className="space-y-6">
                           <div className="p-6 rounded-lg border border-dashed border-amber-300 bg-amber-50/50">

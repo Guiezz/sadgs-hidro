@@ -41,6 +41,16 @@ const MemberList = ({ members }: { members: Responsavel[] | undefined }) => {
   );
 };
 
+const equipeElaboracaoSistema = [
+  "Amanda Rodrigues Costa",
+  "Daniele Costa da Silva",
+  "Daniel Antonio Camelo Cid",
+  "Francisco de Assis de Souza Filho",
+  "Guilherme Bessa Araújo Nojosa",
+  "José Kerlly Soares de Araújo",
+  "Maitê Viana Paiva",
+];
+
 export default function ResponsaveisPage() {
   const { selectedReservoir } = useReservoir();
   const [groupedData, setGroupedData] = useState<GroupedData>({});
@@ -296,6 +306,31 @@ export default function ResponsaveisPage() {
           </section>
         );
       })}
+
+      <section className="space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b">
+          <Users2 className="w-5 h-5 text-primary" />
+          <h2 className="text-xl font-bold uppercase tracking-wide">
+            Equipe de Elaboração do Sistema
+          </h2>
+        </div>
+        <div className="bg-card border border-border/40 rounded-xl shadow-sm">
+          <div className="p-4 pt-5">
+            <div className="space-y-3">
+              {equipeElaboracaoSistema.map((nome) => (
+                <div
+                  key={nome}
+                  className="flex flex-col border-l-2 border-primary/20 pl-3 py-1 transition-colors hover:border-primary"
+                >
+                  <span className="text-sm font-medium text-foreground">
+                    {nome}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="space-y-6">
         <h2 className="text-2xl font-bold tracking-tight text-center md:text-left">

@@ -43,7 +43,7 @@ export default function HomePage() {
       >
         <div className="absolute inset-0 bg-gradient-to-br from-primary/[2%] via-transparent to-primary/[1%] pointer-events-none" />
 
-        <div className="relative flex flex-col lg:flex-row items-center gap-10 px-6 py-12 lg:px-12 lg:py-16 max-w-7xl mx-auto">
+        <div className="relative flex flex-col lg:flex-row items-center gap-10 px-6 py-10 lg:px-12 lg:py-14 max-w-7xl mx-auto">
           <div className="flex-1 space-y-6">
             <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter leading-none">
@@ -151,7 +151,7 @@ export default function HomePage() {
       </section>
 
       {/* Funcionalidades */}
-      <section className="py-16 lg:py-20 px-6 lg:px-12 max-w-7xl mx-auto w-full">
+      <section className="py-12 lg:py-16 px-6 lg:px-12 max-w-7xl mx-auto w-full">
         <div className="space-y-3 mb-10">
           <h2 className="text-3xl font-bold tracking-tight">
             Funcionalidades do Sistema
@@ -169,7 +169,7 @@ export default function HomePage() {
       </section>
 
       {/* Reservatórios */}
-      <section className="py-16 lg:py-20 px-6 lg:px-12 max-w-7xl mx-auto w-full border-t border-border/40">
+      <section className="py-12 lg:py-16 px-6 lg:px-12 max-w-7xl mx-auto w-full border-t border-border/40">
         <div className="space-y-3 mb-10">
           <h2 className="text-2xl font-bold tracking-tight">
             Hidrossistemas Monitorados
@@ -209,52 +209,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Instituições Parceiras */}
-      <section className="py-16 lg:py-20 px-6 lg:px-12 max-w-7xl mx-auto w-full border-t border-border/40">
-        <div className="space-y-3 mb-10">
-          <h2 className="text-2xl font-bold tracking-tight">
-            Instituições Parceiras
-          </h2>
-          <p className="text-muted-foreground max-w-xl">
-            O SADGS é fruto de uma parceria entre instituições acadêmicas e
-            órgãos gestores dos recursos hídricos do Ceará.
-          </p>
-        </div>
-
-        <div className="space-y-12">
-          <div className="space-y-5">
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.2em]">
-              Academia
-            </h3>
-            <div className="flex flex-wrap items-center gap-10 md:gap-14">
-              <PartnerLogo
-                src="/logos/cientista-chefe.png"
-                alt="Programa Cientista Chefe"
-              />
-              <PartnerLogo src="/logos/cepas.png" alt="CEPAS" />
-              <PartnerLogo
-                src="/logos/ufc-h.png"
-                alt="Universidade Federal do Ceará"
-              />
-            </div>
-          </div>
-          <div className="space-y-5">
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.2em]">
-              Gestão
-            </h3>
-            <div className="flex flex-wrap items-center gap-10 md:gap-14">
-              <PartnerLogo src="/logos/cogerh.png" alt="COGERH" />
-              <PartnerLogo src="/logos/funceme.png" alt="FUNCEME" />
-              <PartnerLogo src="/logos/funcap.png" alt="FUNCAP" />
-              <PartnerLogo src="/logos/srh-h.png" alt="SRH" />
-              <PartnerLogo
-                src="/logos/secitece-h.png"
-                alt="SECITECE"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
     </main>
   );
 }
@@ -351,18 +305,5 @@ function FeatureCard({
         </CardContent>
       </Card>
     </Link>
-  );
-}
-
-function PartnerLogo({ src, alt }: { src: string; alt: string }) {
-  return (
-    <div className="relative h-10 md:h-12 w-28 md:w-36 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        className="object-contain dark:brightness-0 dark:invert"
-      />
-    </div>
   );
 }
