@@ -52,8 +52,9 @@ export function ReservoirProvider({ children }: { children: ReactNode }) {
         const data: Reservatorio[] = await res.json();
         setReservatorios(data);
 
-        // REMOVIDO: O bloco que selecionava o primeiro item automaticamente
-        // Agora o estado inicial permanece null até o usuário escolher
+        if (data && data.length > 0) {
+          setSelectedReservoir((prev) => prev || data[0]);
+        }
       } catch (err: any) {
         console.error(err);
         setError(err.message);

@@ -16,8 +16,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Clock, CalendarDays, ShieldCheck, Droplets, Gauge } from "lucide-react";
+import { Loader2, Clock, CalendarDays, ShieldCheck, Droplets, Gauge, Layers, ArrowRight } from "lucide-react";
 import { EmptyReservoirState } from "@/components/dashboard/EmptyReservoirState";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 // Função auxiliar para converter strings de data (ex: "dd/mm/yyyy") em objetos Date
 function parseDate(dateStr: string): Date {
@@ -198,6 +200,30 @@ export default function EstadoDeSecaPage() {
         <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-primary">
           {selectedReservoir.nome}
         </h1>
+      </div>
+
+      {/* Banner de Destaque - Visualização 3D */}
+      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border border-primary/20 rounded-xl p-5 md:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
+        <div className="flex items-start gap-4">
+          <div className="bg-primary/20 p-3 rounded-xl text-primary shrink-0">
+            <Layers className="h-6 w-6" />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+              Relógio da Seca 3D
+              <Badge className="bg-primary text-primary-foreground hover:bg-primary/95 text-[9px] px-1.5 py-0.5 uppercase tracking-wide">Novo</Badge>
+            </h3>
+            <p className="text-xs text-muted-foreground max-w-2xl leading-relaxed">
+              Explore o modelo tridimensional interativo do reservatório. Acompanhe a variação do nível da água, os gatilhos das metas do Plano de Seca por mês e simule a liberação de vazão da descarga de fundo.
+            </p>
+          </div>
+        </div>
+        <Link href="/relogio-3d" passHref className="w-full md:w-auto shrink-0">
+          <Button className="w-full md:w-auto bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-xs flex items-center justify-center gap-1.5 py-5 px-4 shadow-sm group">
+            Ver em 3D
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Button>
+        </Link>
       </div>
 
       {/* Métricas */}
