@@ -91,6 +91,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
                   Monitoramento do Estado de Seca
                 </TooltipContent>
               </Tooltip>
+
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Link
