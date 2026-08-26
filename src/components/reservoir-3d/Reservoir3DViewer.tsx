@@ -1,19 +1,30 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
 import { GatilhoPGPSMes, UsoAgua } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Droplets, Settings2, Waves, RotateCcw, Activity } from "lucide-react";
+import {
+  Waves,
+  RotateCcw,
+  Activity,
+  Play,
+  Pause,
+  ArrowUpCircle,
+  ArrowDownCircle,
+  Sparkles,
+  Sliders,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DroughtClock } from "./DroughtClock";
 
-// Carregamento dinâmico para evitar SSR com Canvas do Three.js / React Three Fiber
+// Carregamento dinâmico para evitar problemas de SSR com o Canvas do WebGL
 const ReservoirScene = dynamic(() => import("./ReservoirScene"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-full min-h-[440px] md:min-h-[540px] flex flex-col items-center justify-center bg-[#eaf3f7] text-muted-foreground rounded-2xl border border-primary/20">
+    <div className="w-full h-full min-h-[440px] md:min-h-[540px] flex flex-col items-center justify-center bg-[#dcecf1] text-muted-foreground rounded-2xl border border-primary/20">
       <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mb-3" />
       <p className="text-sm font-medium text-slate-600">Carregando modelo tridimensional...</p>
     </div>
@@ -26,14 +37,14 @@ const MONTHS_FULL = [
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
 ];
 
-// Mapeamento oficial de cores dos estados de seca
+// Mapeamento oficial de cores e descrições dos estados de seca
 const ESTADO_CONFIG = {
   Normal: {
     label: "Normal",
     colorHex: "#2ea7df", // Azul límpido clássico
     badgeClass: "bg-sky-100 text-sky-800 border-sky-300 dark:bg-sky-950/60 dark:text-sky-300",
     dotClass: "bg-[#2ea7df]",
-    description: "Volume confortável acima do gatilho de seca (VM1). Operação e alocação plenas.",
+    description: "Volume confortável acima do gatilho VM1. Operação e alocação plenas.",
   },
   Alerta: {
     label: "Alerta",
@@ -91,13 +102,35 @@ export default function Reservoir3DViewer({
   const [volumePercent, setVolumePercent] = useState<number>(realVolumePercent || 50);
   const [monthIndex, setMonthIndex] = useState<number>(defaultMonthIndex);
 
+  // Estados para simulação automática (Encher / Esvaziar)
+  const [simulationDirection, setSimulationDirection] = useState<"fill" | "drain">("fill");
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+
   // Sincroniza dados caso o reservatório mude
   useEffect(() => {
     if (modo === "real") {
       setVolumePercent(realVolumePercent);
       setMonthIndex(defaultMonthIndex);
+      setIsPlaying(false);
     }
   }, [modo, realVolumePercent, defaultMonthIndex]);
+
+  // Animação automática de enchimento e esvaziamento (a cada 80ms)
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    const interval = setInterval(() => {
+      setVolumePercent((prev) => {
+        const next = simulationDirection === "fill" ? Math.min(100, prev + 1) : Math.max(0, prev - 1);
+        if (next === 0 || next === 100) {
+          setIsPlaying(false);
+        }
+        return next;
+      });
+    }, 80);
+
+    return () => clearInterval(interval);
+  }, [isPlaying, simulationDirection]);
 
   // Metas do mês selecionado (1 a 12)
   const gatilhoMes = useMemo(() => {
@@ -106,13 +139,9 @@ export default function Reservoir3DViewer({
     return gatilhos.find((g) => g.mes_num === mesNum) || gatilhos[0];
   }, [gatilhos, monthIndex]);
 
-  // Extração ordenada e consistente dos gatilhos em hm³ e percentual:
-  // VM1 = Gatilho Superior (Normal vs Alerta) -> maior valor
-  // VM2 = Gatilho Intermediário (Alerta vs Seca) -> valor do meio
-  // VM3 = Gatilho Inferior (Seca vs Seca Severa) -> menor valor
+  // Extração ordenada dos gatilhos em hm³ e percentual
   const thresholds = useMemo(() => {
     if (!gatilhoMes || capacityHm3 <= 0) {
-      // Fallback percentual padrão
       const p1 = 35;
       const p2 = 25;
       const p3 = 15;
@@ -126,19 +155,17 @@ export default function Reservoir3DViewer({
       };
     }
 
-    // Coleta os valores brutos das metas em hm³
     const raw = [
       gatilhoMes.seca_severa_hm3,
       gatilhoMes.seca_hm3,
       gatilhoMes.alerta_hm3,
     ].filter((v) => typeof v === "number" && !isNaN(v) && v > 0);
 
-    // Ordena do MAIOR para o MENOR
     const sorted = [...raw].sort((a, b) => b - a);
 
-    const vm1Hm3 = sorted[0] ?? (0.35 * capacityHm3);
-    const vm2Hm3 = sorted[1] ?? (0.25 * capacityHm3);
-    const vm3Hm3 = sorted[2] ?? (0.15 * capacityHm3);
+    const vm1Hm3 = sorted[0] ?? 0.35 * capacityHm3;
+    const vm2Hm3 = sorted[1] ?? 0.25 * capacityHm3;
+    const vm3Hm3 = sorted[2] ?? 0.15 * capacityHm3;
 
     return {
       vm1Hm3,
@@ -153,11 +180,7 @@ export default function Reservoir3DViewer({
   // Volume atual em hm³
   const volumeHm3 = (volumePercent / 100) * capacityHm3;
 
-  // Classificação do estado de seca com base no volume percentual e nos gatilhos
-  // Acima de VM1 -> Normal (Azul)
-  // Entre VM1 e VM2 -> Alerta (Amarelo)
-  // Entre VM2 e VM3 -> Seca (Laranja)
-  // Abaixo de VM3 -> Seca Severa (Vermelho)
+  // Classificação do estado de seca
   const estadoAtualKey = useMemo((): keyof typeof ESTADO_CONFIG => {
     if (volumeHm3 >= thresholds.vm1Hm3 - 0.001) return "Normal";
     if (volumeHm3 >= thresholds.vm2Hm3 - 0.001) return "Alerta";
@@ -176,25 +199,40 @@ export default function Reservoir3DViewer({
     return waterUses.reduce((acc, u) => acc + (isEscassez ? u.vazao_escassez : u.vazao_normal), 0);
   }, [waterUses, estadoAtualKey]);
 
+  const limitReached =
+    simulationDirection === "fill" ? volumePercent >= 100 : volumePercent <= 0;
+
+  const handleSelectDirection = (dir: "fill" | "drain") => {
+    setModo("simulacao");
+    setSimulationDirection(dir);
+    setIsPlaying(false);
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-      {/* 3D Scene Viewport */}
-      <div className="lg:col-span-8 flex flex-col gap-4">
-        <div className="relative aspect-[4/3] md:aspect-video lg:h-[540px] rounded-2xl overflow-hidden shadow-lg border border-primary/20 bg-[#eaf3f7]">
+      {/* Coluna Principal: Visualizador 3D + Dinâmica Hidráulica */}
+      <div className="lg:col-span-8 flex flex-col gap-5">
+        <div className="relative aspect-[4/3] md:aspect-video lg:h-[540px] rounded-2xl overflow-hidden shadow-lg border border-primary/20 bg-[#dcecf1]">
+          {/* Rótulo superior do céu */}
+          <div className="absolute top-3 right-4 bg-slate-900/60 backdrop-blur-sm text-white/90 text-[10px] font-semibold px-3 py-1 rounded-full uppercase tracking-wider select-none pointer-events-none z-10 border border-white/10">
+            Modelo Conceitual • Volume Não Batimétrico
+          </div>
+
           <ReservoirScene
             level={volumePercent}
             color={estadoConfig.colorHex}
             releasing={isReleasing}
+            droughtState={estadoAtualKey}
           />
 
           {/* HUD Top Left - Volume e Status */}
-          <div className="absolute top-4 left-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-4 py-3 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col gap-1 select-none pointer-events-none min-w-[200px]">
+          <div className="absolute top-3 left-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-4 py-3 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col gap-1 select-none pointer-events-none min-w-[200px] z-10">
             <div className="flex items-center justify-between gap-3">
-              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                 Volume Armazenado
               </span>
               <span
-                className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                className="text-xs font-bold px-2 py-0.5 rounded-full"
                 style={{
                   backgroundColor: `${estadoConfig.colorHex}22`,
                   color: estadoConfig.colorHex,
@@ -223,25 +261,87 @@ export default function Reservoir3DViewer({
           </div>
 
           {/* Dica de Interação no rodapé da cena */}
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-slate-900/70 backdrop-blur-sm text-white text-[11px] font-medium px-4 py-1.5 rounded-full border border-white/10 select-none pointer-events-none shadow-sm">
-            Arraste para rotacionar · Scroll para zoom
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-slate-900/70 backdrop-blur-sm text-white text-[11px] font-medium px-4 py-1.5 rounded-full border border-white/10 select-none pointer-events-none shadow-sm z-10">
+            Arraste para girar · Scroll para zoom
           </div>
         </div>
 
-        {/* Card Explicativo das Zonas Físicas */}
-        <div className="bg-card border border-border/60 rounded-xl p-4 shadow-sm text-xs text-muted-foreground flex flex-col gap-2.5">
-          <div className="font-semibold text-foreground flex items-center gap-2 text-sm">
-            <Waves className="h-4 w-4 text-primary" />
-            Dinâmica Hidráulica do Modelo
+        {/* Card de Zonas e Dinâmica Hidráulica */}
+        <div className="bg-card border border-border/60 rounded-xl p-5 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="font-bold text-foreground flex items-center gap-2 text-sm">
+              <Waves className="h-4 w-4 text-primary" />
+              Zonas do Reservatório & Dinâmica Hidráulica
+            </div>
+            <span className="text-xs text-muted-foreground">
+              Em <strong className="text-foreground">{MONTHS_FULL[monthIndex]}</strong>, {volumePercent.toFixed(1)}% está{" "}
+              <strong className="text-primary">
+                {volumeHm3 >= thresholds.vm1Hm3
+                  ? "acima de VM1 (Normal)"
+                  : volumeHm3 >= thresholds.vm2Hm3
+                  ? "entre VM1 e VM2 (Alerta)"
+                  : volumeHm3 >= thresholds.vm3Hm3
+                  ? "entre VM2 e VM3 (Seca)"
+                  : "abaixo de VM3 (Seca Severa)"}
+              </strong>
+            </span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+
+          {/* Grid de Zonas do Relógio */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+            {(Object.keys(ESTADO_CONFIG) as Array<keyof typeof ESTADO_CONFIG>).map((key) => {
+              const cfg = ESTADO_CONFIG[key];
+              const isSelected = key === estadoAtualKey;
+              return (
+                <div
+                  key={key}
+                  className={`p-2.5 rounded-xl border transition-all flex items-center gap-2.5 ${
+                    isSelected
+                      ? "ring-2 shadow-xs"
+                      : "bg-muted/30 border-border/40 opacity-70 hover:opacity-100"
+                  }`}
+                  style={{
+                    backgroundColor: isSelected ? `${cfg.colorHex}18` : undefined,
+                    borderColor: isSelected ? cfg.colorHex : undefined,
+                  }}
+                >
+                  <span
+                    className="w-2.5 h-7 rounded-full shrink-0"
+                    style={{ backgroundColor: cfg.colorHex }}
+                  />
+                  <div className="min-w-0">
+                    <span className="text-xs font-bold block truncate" style={{ color: cfg.colorHex }}>
+                      {cfg.label}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground truncate block">
+                      {key === "Normal" && `> ${thresholds.vm1Percent.toFixed(0)}%`}
+                      {key === "Alerta" && `${thresholds.vm2Percent.toFixed(0)}% - ${thresholds.vm1Percent.toFixed(0)}%`}
+                      {key === "Seca" && `${thresholds.vm3Percent.toFixed(0)}% - ${thresholds.vm2Percent.toFixed(0)}%`}
+                      {key === "Seca Severa" && `< ${thresholds.vm3Percent.toFixed(0)}%`}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1 border-t border-border/40 text-xs text-muted-foreground">
             <div className="p-2.5 bg-muted/40 rounded-lg border border-border/40 space-y-1">
               <span className="font-semibold text-foreground flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-sky-500" />
                 Nível & Cor da Água
               </span>
               <p className="text-[11px] leading-relaxed">
-                A lâmina d'água sobe e preenche a bacia conforme o volume. A cor é <strong>azul</strong> quando acima do gatilho VM1 (Normal), mudando para <strong>amarelo</strong> (Alerta), <strong>laranja</strong> (Seca) e <strong>vermelho</strong> (Seca Severa).
+                A lâmina d'água sobe e preenche a bacia conforme o volume. A cor é <strong>azul</strong> acima de VM1 (Normal), mudando para <strong>amarelo</strong> (Alerta), <strong>laranja</strong> (Seca) e <strong>vermelho</strong> (Seca Severa).
+              </p>
+            </div>
+            <div className="p-2.5 bg-muted/40 rounded-lg border border-border/40 space-y-1">
+              <span className="font-semibold text-foreground flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                Vegetação & Caatinga
+              </span>
+              <p className="text-[11px] leading-relaxed">
+                O bioma reage à seca: <strong>verdejante</strong> no estado Normal, <strong>oliva/amarelado</strong> em Alerta, <strong>ocre/palha</strong> na Seca e <strong>caatinga cinzenta</strong> na Seca Severa.
               </p>
             </div>
             <div className="p-2.5 bg-muted/40 rounded-lg border border-border/40 space-y-1">
@@ -250,7 +350,7 @@ export default function Reservoir3DViewer({
                 Descarga de Fundo
               </span>
               <p className="text-[11px] leading-relaxed">
-                Válvula de saída na base da barragem com fluxo contínuo do rio a jusante, suspensa automaticamente em estado de <strong>Seca Severa</strong>.
+                Válvula de saída na base da barragem com rio a jusante, suspenso automaticamente quando atinge o estado de <strong>Seca Severa</strong>.
               </p>
             </div>
             <div className="p-2.5 bg-muted/40 rounded-lg border border-border/40 space-y-1">
@@ -259,22 +359,62 @@ export default function Reservoir3DViewer({
                 Vertedouro (Soleira)
               </span>
               <p className="text-[11px] leading-relaxed">
-                Localizado na ombreira da barragem. Quando o volume atinge <strong>&ge; 99%</strong>, o excesso é descarregado automaticamente pelo canal de sangria.
+                Canal na ombreira da barragem. Quando o volume atinge <strong>&ge; 99%</strong>, o excesso é descarregado automaticamente pelo canal de sangria.
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Control Panel Sidebar */}
+      {/* Coluna Lateral: Relógio da Seca + Painel de Simulação */}
       <div className="lg:col-span-4 flex flex-col gap-5">
-        {/* Card de Controles */}
+        {/* Card do Relógio da Seca (Drought Clock) */}
+        <Card className="border-border/60 shadow-sm overflow-hidden">
+          <CardHeader className="pb-2 bg-gradient-to-b from-muted/50 to-transparent">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                  Abastecimento & PGPS
+                </p>
+                <CardTitle className="text-base font-bold text-foreground">
+                  Relógio da Seca
+                </CardTitle>
+              </div>
+              <Badge
+                className="font-bold text-xs"
+                style={{
+                  backgroundColor: `${estadoConfig.colorHex}22`,
+                  color: estadoConfig.colorHex,
+                  borderColor: `${estadoConfig.colorHex}44`,
+                }}
+              >
+                {estadoConfig.label}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-2 pb-4">
+            <DroughtClock
+              volume={volumePercent}
+              vm1={thresholds.vm1Percent}
+              vm2={thresholds.vm2Percent}
+              vm3={thresholds.vm3Percent}
+              stateLabel={estadoConfig.label}
+              stateColor={estadoConfig.colorHex}
+              monthName={MONTHS_SHORT[monthIndex]}
+              vm1Hm3={thresholds.vm1Hm3}
+              vm2Hm3={thresholds.vm2Hm3}
+              vm3Hm3={thresholds.vm3Hm3}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Card de Controle da Simulação */}
         <Card className="border-border/60 shadow-sm">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Settings2 className="h-5 w-5 text-primary" />
-                <CardTitle className="text-lg font-bold">Controle da Simulação</CardTitle>
+                <Sliders className="h-4 w-4 text-primary" />
+                <CardTitle className="text-base font-bold">Controle da Simulação</CardTitle>
               </div>
               {modo === "simulacao" && (
                 <Button
@@ -283,6 +423,7 @@ export default function Reservoir3DViewer({
                   onClick={() => {
                     setVolumePercent(realVolumePercent);
                     setMonthIndex(defaultMonthIndex);
+                    setIsPlaying(false);
                   }}
                   className="h-7 text-xs px-2 text-muted-foreground hover:text-primary gap-1"
                 >
@@ -292,17 +433,20 @@ export default function Reservoir3DViewer({
               )}
             </div>
             <CardDescription className="text-xs">
-              Alterne entre a medição atual e simulações com os gatilhos do PGPS
+              Alterne entre a medição oficial e simulações com animação automática
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-5">
-            {/* Seletor de Modo */}
+          <CardContent className="space-y-4">
+            {/* Seletor de Modo: Real vs Simulação */}
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground font-medium">Modo de Exibição</Label>
+              <Label className="text-xs text-muted-foreground font-medium">Modo de Operação</Label>
               <div className="grid grid-cols-2 gap-2 bg-muted p-1 rounded-xl">
                 <button
                   type="button"
-                  onClick={() => setModo("real")}
+                  onClick={() => {
+                    setModo("real");
+                    setIsPlaying(false);
+                  }}
                   className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
                     modo === "real"
                       ? "bg-background text-primary shadow-sm font-bold"
@@ -321,7 +465,7 @@ export default function Reservoir3DViewer({
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  <Settings2 className="h-3.5 w-3.5" />
+                  <Sparkles className="h-3.5 w-3.5" />
                   Simulação
                 </button>
               </div>
@@ -344,7 +488,10 @@ export default function Reservoir3DViewer({
                 step="1"
                 disabled={modo === "real"}
                 value={volumePercent}
-                onChange={(e) => setVolumePercent(parseFloat(e.target.value))}
+                onChange={(e) => {
+                  setIsPlaying(false);
+                  setVolumePercent(parseFloat(e.target.value));
+                }}
                 className="w-full accent-primary h-2 bg-slate-200 dark:bg-slate-700 rounded-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <div className="flex justify-between text-[10px] text-muted-foreground px-0.5">
@@ -354,7 +501,75 @@ export default function Reservoir3DViewer({
               </div>
             </div>
 
-            {/* Slider / Seletor de Mês */}
+            {/* Controles de Animação Automática (Encher / Esvaziar + Play) */}
+            <div className="p-3 bg-muted/50 rounded-xl border border-border/60 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-foreground flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5 text-orange-500" />
+                  Animação Contínua
+                </span>
+                <span className="text-[10px] text-muted-foreground font-medium">80ms / passo</span>
+              </div>
+
+              {/* Botões Encher vs Esvaziar */}
+              <div className="grid grid-cols-2 gap-2 bg-background p-1 rounded-lg border border-border/50">
+                <button
+                  type="button"
+                  onClick={() => handleSelectDirection("fill")}
+                  className={`py-1.5 px-2 rounded-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                    simulationDirection === "fill"
+                      ? "bg-primary text-primary-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <ArrowUpCircle className="h-3.5 w-3.5" />
+                  Encher
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSelectDirection("drain")}
+                  className={`py-1.5 px-2 rounded-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                    simulationDirection === "drain"
+                      ? "bg-primary text-primary-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <ArrowDownCircle className="h-3.5 w-3.5" />
+                  Esvaziar
+                </button>
+              </div>
+
+              {/* Botão Play / Pausar com estilo Funceme */}
+              <button
+                type="button"
+                disabled={limitReached && !isPlaying}
+                onClick={() => {
+                  setModo("simulacao");
+                  setIsPlaying((prev) => !prev);
+                }}
+                className={`w-full py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 text-white transition-all shadow-sm ${
+                  limitReached && !isPlaying
+                    ? "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+                    : "bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 active:scale-[0.99] shadow-orange-500/20"
+                }`}
+              >
+                <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">
+                  {isPlaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3 fill-white ml-0.5" />}
+                </span>
+                {isPlaying ? "Pausar Simulação" : "Iniciar Simulação"}
+              </button>
+
+              {/* Status da Simulação */}
+              <p className="text-[10px] text-center text-muted-foreground min-h-[14px]">
+                {isPlaying
+                  ? `${simulationDirection === "fill" ? "Enchendo" : "Esvaziando"} automaticamente...`
+                  : limitReached
+                  ? "Limite da simulação atingido."
+                  : "Escolha o sentido e pressione Iniciar Simulação."}
+              </p>
+            </div>
+
+            {/* Slider do Mês de Referência */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-xs font-semibold text-foreground">
@@ -371,7 +586,9 @@ export default function Reservoir3DViewer({
                 step="1"
                 disabled={modo === "real"}
                 value={monthIndex}
-                onChange={(e) => setMonthIndex(parseInt(e.target.value, 10))}
+                onChange={(e) => {
+                  setMonthIndex(parseInt(e.target.value, 10));
+                }}
                 className="w-full accent-primary h-2 bg-slate-200 dark:bg-slate-700 rounded-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <div className="flex justify-between text-[10px] text-muted-foreground px-0.5">
@@ -418,7 +635,7 @@ export default function Reservoir3DViewer({
               </div>
             </div>
 
-            {/* Resumo do Enquadramento */}
+            {/* Resumo do Enquadramento e Vazão */}
             <div
               className="p-3.5 rounded-xl border space-y-1.5 transition-all"
               style={{
