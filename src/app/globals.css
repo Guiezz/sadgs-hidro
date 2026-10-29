@@ -41,6 +41,11 @@
   --color-link: var(--link);
   --color-link-hover: var(--link-hover);
   --color-water: var(--water);
+  --color-water-soft: var(--water-soft);
+  --color-primary-hover: var(--primary-hover);
+  --color-border-strong: var(--border-strong);
+  --color-grid-dot: var(--grid-dot);
+  --color-on-dark: var(--on-dark);
   --color-estado-normal-text: var(--estado-normal-text);
   --color-estado-normal-bg: var(--estado-normal-bg);
   --color-estado-normal-dot: var(--estado-normal-dot);
@@ -92,6 +97,11 @@
   --link: #a34e00;
   --link-hover: #7a3a00;
   --water: #1d6a8a;
+  --water-soft: #dcebf1;
+  --primary-hover: #e58400;
+  --border-strong: #e0b98f; /* borda de hover de cards */
+  --grid-dot: #f0e2d2;
+  --on-dark: #f6e7d6; /* texto sobre marrom */
   --accent: #fde6d3;
   --accent-foreground: #2a1405;
   --destructive: #c0392b;
