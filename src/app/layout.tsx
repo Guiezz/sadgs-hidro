@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { Inter } from "next/font/google";
+import { Bricolage_Grotesque, Inter } from "next/font/google";
 import { usePathname } from "next/navigation"; // Importação necessária
 import "./globals.css";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -10,7 +10,12 @@ import { Header } from "@/components/layout/Header";
 import { ReservoirProvider } from "@/context/ReservoirContext";
 import { AuthProvider } from "@/context/AuthContext";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  axes: ["opsz"],
+  variable: "--font-bricolage",
+});
 
 export default function RootLayout({
   children,
@@ -24,8 +29,12 @@ export default function RootLayout({
   const isLoginPage = pathname === "/login";
 
   return (
-    <html lang="pt-br" suppressHydrationWarning>
-      <body className={inter.className}>
+    <html
+      lang="pt-BR"
+      className={`${inter.variable} ${bricolage.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="font-sans">
         <AuthProvider>
           <ReservoirProvider>
             <div className="flex min-h-screen w-full bg-background">
