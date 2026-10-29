@@ -173,3 +173,13 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Controles do Leaflet com alvo de toque de 44px */
+.leaflet-container .leaflet-bar a,
+.leaflet-container.leaflet-touch .leaflet-bar a {
+  width: 44px;
+  height: 44px;
+  line-height: 44px;
+  font-size: 20px;
+  color: var(--foreground);
+}

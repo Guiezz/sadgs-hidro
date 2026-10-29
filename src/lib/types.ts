@@ -20,6 +20,15 @@ export interface IdentificationData {
   long: number;
   url_imagem: string;
   url_imagem_usos: string;
+  // Ficha técnica (opcionais: só aparecem quando preenchidos na API)
+  capacidade_hm3?: number;
+  codigo_funceme?: string;
+  bacia?: string | null;
+  area_drenagem_km2?: number | null;
+  ano_construcao?: number | null;
+  construtor?: string | null;
+  rio_barrado?: string | null;
+  municipios_atendidos?: string | null;
 }
 
 // --- TIPOS PARA O DASHBOARD ---
