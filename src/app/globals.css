@@ -46,6 +46,10 @@
   --color-border-strong: var(--border-strong);
   --color-grid-dot: var(--grid-dot);
   --color-on-dark: var(--on-dark);
+  --color-meta-1: var(--meta-1);
+  --color-meta-2: var(--meta-2);
+  --color-meta-3: var(--meta-3);
+  --color-decline: var(--decline);
   --color-estado-normal-text: var(--estado-normal-text);
   --color-estado-normal-bg: var(--estado-normal-bg);
   --color-estado-normal-dot: var(--estado-normal-dot);
@@ -102,6 +106,11 @@
   --border-strong: #e0b98f; /* borda de hover de cards */
   --grid-dot: #f0e2d2;
   --on-dark: #f6e7d6; /* texto sobre marrom */
+  --meta-1: #3e8e5a;
+  --meta-2: #b07d00;
+  --meta-3: #c0392b;
+  --decline: #a8480a; /* variação negativa */
+  --chart-grid: #f0e4d6;
   --accent: #fde6d3;
   --accent-foreground: #2a1405;
   --destructive: #c0392b;
