@@ -70,7 +70,7 @@ export function Parceiros() {
             alt="Governo do Estado do Ceará"
             width={520}
             height={180}
-            className="h-25 w-auto max-h-44 md:max-h-52 dark:invert brightness-110"
+            className="h-25 w-auto max-h-44 md:max-h-52 brightness-110"
           />
         </div>
       </div>

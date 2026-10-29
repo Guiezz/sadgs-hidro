@@ -208,7 +208,7 @@ export function DroughtGauge({
       </svg>
 
       <div className={`flex flex-col items-center text-center z-10 ${compact ? "mt-[-16px]" : "mt-[-20px]"}`}>
-        <span className={`font-black text-slate-800 dark:text-slate-100 ${compact ? "text-lg" : "text-3xl"}`}>
+        <span className={`font-black text-slate-800 ${compact ? "text-lg" : "text-3xl"}`}>
           {value.toFixed(1)}%
         </span>
         <span

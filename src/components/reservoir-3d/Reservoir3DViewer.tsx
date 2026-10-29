@@ -42,28 +42,28 @@ const ESTADO_CONFIG = {
   Normal: {
     label: "Normal",
     colorHex: "#2ea7df", // Azul límpido clássico
-    badgeClass: "bg-sky-100 text-sky-800 border-sky-300 dark:bg-sky-950/60 dark:text-sky-300",
+    badgeClass: "bg-sky-100 text-sky-800 border-sky-300",
     dotClass: "bg-[#2ea7df]",
     description: "Volume confortável acima do gatilho VM1. Operação e alocação plenas.",
   },
   Alerta: {
     label: "Alerta",
     colorHex: "#f6d74b", // Amarelo
-    badgeClass: "bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-950/60 dark:text-yellow-300",
+    badgeClass: "bg-yellow-100 text-yellow-800 border-yellow-300",
     dotClass: "bg-[#f6d74b]",
     description: "Volume entre Meta 1 (VM1) e Meta 2 (VM2). Adoção de medidas preventivas de monitoramento.",
   },
   Seca: {
     label: "Seca",
     colorHex: "#f3a13b", // Laranja
-    badgeClass: "bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-950/60 dark:text-orange-300",
+    badgeClass: "bg-orange-100 text-orange-800 border-orange-300",
     dotClass: "bg-[#f3a13b]",
     description: "Volume entre Meta 2 (VM2) e Meta 3 (VM3). Restrições e contingenciamento de vazões.",
   },
   "Seca Severa": {
     label: "Seca Severa",
     colorHex: "#e85b4f", // Vermelho
-    badgeClass: "bg-red-100 text-red-800 border-red-300 dark:bg-red-950/60 dark:text-red-300",
+    badgeClass: "bg-red-100 text-red-800 border-red-300",
     dotClass: "bg-[#e85b4f]",
     description: "Volume abaixo da Meta 3 (VM3). Suspensão de usos não prioritários.",
   },
@@ -226,7 +226,7 @@ export default function Reservoir3DViewer({
           />
 
           {/* HUD Top Left - Volume e Status */}
-          <div className="absolute top-3 left-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-4 py-3 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col gap-1 select-none pointer-events-none min-w-[200px] z-10">
+          <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-4 py-3 rounded-xl border border-slate-200/80 shadow-sm flex flex-col gap-1 select-none pointer-events-none min-w-[200px] z-10">
             <div className="flex items-center justify-between gap-3">
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                 Volume Armazenado
@@ -247,8 +247,8 @@ export default function Reservoir3DViewer({
             <div className="text-xs text-muted-foreground font-medium">
               {volumeHm3.toFixed(2)} hm³ de {capacityHm3.toFixed(2)} hm³
             </div>
-            <div className="mt-1 pt-1.5 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+            <div className="mt-1 pt-1.5 border-t border-slate-200/80 flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-700">
                 Estado da Seca:
               </span>
               <div className="flex items-center gap-1.5">
@@ -492,7 +492,7 @@ export default function Reservoir3DViewer({
                   setIsPlaying(false);
                   setVolumePercent(parseFloat(e.target.value));
                 }}
-                className="w-full accent-primary h-2 bg-slate-200 dark:bg-slate-700 rounded-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full accent-primary h-2 bg-slate-200 rounded-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <div className="flex justify-between text-[10px] text-muted-foreground px-0.5">
                 <span>0% (Vazio)</span>
@@ -589,7 +589,7 @@ export default function Reservoir3DViewer({
                 onChange={(e) => {
                   setMonthIndex(parseInt(e.target.value, 10));
                 }}
-                className="w-full accent-primary h-2 bg-slate-200 dark:bg-slate-700 rounded-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full accent-primary h-2 bg-slate-200 rounded-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <div className="flex justify-between text-[10px] text-muted-foreground px-0.5">
                 <span>Jan</span>
@@ -605,7 +605,7 @@ export default function Reservoir3DViewer({
                 <span className="text-[10px] text-muted-foreground font-medium">hm³ (metas)</span>
               </div>
               <div className="grid grid-cols-3 gap-2 text-center">
-                <div className="p-2 bg-background rounded-lg border border-sky-200 dark:border-sky-900/40 shadow-xs">
+                <div className="p-2 bg-background rounded-lg border border-sky-200 shadow-xs">
                   <span className="text-[10px] font-bold text-sky-600 block">VM1 (Normal)</span>
                   <strong className="text-xs font-extrabold text-foreground block mt-0.5">
                     {thresholds.vm1Hm3.toFixed(2)} hm³
@@ -614,7 +614,7 @@ export default function Reservoir3DViewer({
                     {thresholds.vm1Percent.toFixed(1)}%
                   </span>
                 </div>
-                <div className="p-2 bg-background rounded-lg border border-yellow-200 dark:border-yellow-900/40 shadow-xs">
+                <div className="p-2 bg-background rounded-lg border border-yellow-200 shadow-xs">
                   <span className="text-[10px] font-bold text-yellow-600 block">VM2 (Alerta)</span>
                   <strong className="text-xs font-extrabold text-foreground block mt-0.5">
                     {thresholds.vm2Hm3.toFixed(2)} hm³
@@ -623,7 +623,7 @@ export default function Reservoir3DViewer({
                     {thresholds.vm2Percent.toFixed(1)}%
                   </span>
                 </div>
-                <div className="p-2 bg-background rounded-lg border border-orange-200 dark:border-orange-900/40 shadow-xs">
+                <div className="p-2 bg-background rounded-lg border border-orange-200 shadow-xs">
                   <span className="text-[10px] font-bold text-orange-600 block">VM3 (Seca)</span>
                   <strong className="text-xs font-extrabold text-foreground block mt-0.5">
                     {thresholds.vm3Hm3.toFixed(2)} hm³

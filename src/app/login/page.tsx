@@ -53,7 +53,7 @@ export default function LoginPage() {
               alt="Logo Sistema de Apoio a Decisão"
               width={120}
               height={40}
-              className="dark:brightness-0 dark:invert"
+              className=""
             />
           </div>
           <CardTitle className="text-2xl font-bold tracking-tight text-primary">

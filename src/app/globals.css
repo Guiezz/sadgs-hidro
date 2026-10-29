@@ -2,8 +2,6 @@
 @import "tw-animate-css";
 @import "leaflet/dist/leaflet.css";
 
-@custom-variant dark (&:is(.dark *));
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -116,39 +114,6 @@
   --sidebar-ring: #1d6a8a;
 }
 
-.dark {
-  --background: #581f02;
-  --foreground: #fdeada;
-  --card: #843c0c; /* Marrom mais claro para o card */
-  --card-foreground: #fdeada;
-  --popover: #843c0c;
-  --popover-foreground: #fdeada;
-  --primary: #f99100;
-  --primary-foreground: #581f02;
-  --secondary: #fdeada;
-  --secondary-foreground: #581f02; /* Contraste ruim, mas melhor opção da paleta */
-  --muted: #581f02;
-  --muted-foreground: #eaddc7;
-  --accent: #581f02;
-  --accent-foreground: #fdeada;
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: #a45c2c; /* Borda sutil para os cards */
-  --input: #a45c2c;
-  --ring: #f99100;
-  --chart-1: #f99100;
-  --chart-2: #fdeada;
-  --chart-3: #fbbf24;
-  --chart-4: #f59e0b;
-  --chart-5: #d97706;
-  --sidebar: #581f02;
-  --sidebar-foreground: #fdeada;
-  --sidebar-primary: #f99100;
-  --sidebar-primary-foreground: #581f02;
-  --sidebar-accent: #843c0c;
-  --sidebar-accent-foreground: #fdeada;
-  --sidebar-border: #fdeada;
-  --sidebar-ring: #f99100;
-}
 
 
 @layer base {

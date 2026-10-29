@@ -4,7 +4,6 @@
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { useTheme } from "next-themes";
 
 type Props = {
   lat: number;
@@ -24,12 +23,6 @@ L.Icon.Default.mergeOptions({
 });
 
 export default function InteractiveMap({ lat, lon }: Props) {
-  const { theme } = useTheme();
-
-  const darkMapUrl =
-    "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
-  const lightMapUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-
   return (
     <MapContainer
       center={[lat, lon]}
@@ -38,8 +31,7 @@ export default function InteractiveMap({ lat, lon }: Props) {
       className="h-[50vh] w-full rounded-md border relative z-0"
     >
       <TileLayer
-        key={theme}
-        url={theme === "dark" ? darkMapUrl : lightMapUrl}
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
       />
       <Marker position={[lat, lon]}>
