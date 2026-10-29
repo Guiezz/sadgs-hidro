@@ -20,7 +20,7 @@ interface ReservoirContextType {
 }
 
 // --- CONTEXTO ---
-const ReservoirContext = createContext<ReservoirContextType | undefined>(
+export const ReservoirContext = createContext<ReservoirContextType | undefined>(
   undefined,
 );
 
