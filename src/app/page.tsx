@@ -24,7 +24,7 @@ import {
   Calendar,
   Landmark,
 } from "lucide-react";
-import { ReservoirSelector } from "@/components/layout/ReservoirSelector";
+import { ReservoirSelect } from "@/components/app/ReservoirSelect";
 
 export default function HomePage() {
   const { reservatorios, setSelectedReservoir } = useReservoir();
@@ -108,7 +108,7 @@ export default function HomePage() {
                 </p>
               </div>
               <div className="pt-3">
-                <ReservoirSelector fullWidth />
+                <ReservoirSelect id="hidro-home" className="h-11 w-full" />
               </div>
             </div>
 
