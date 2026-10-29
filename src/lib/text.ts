@@ -29,3 +29,14 @@ export function splitList(raw: string | null | undefined): string[] {
   items.push(current);
   return items.map((s) => s.trim()).filter(Boolean);
 }
+
+// Ações de um plano vêm de células da planilha: uma por linha ou, quando os
+// itens quebram em várias linhas, separadas por uma linha em branco.
+export function splitActions(raw: string | null | undefined): string[] {
+  if (!raw) return [];
+  const text = raw.replace(/\r/g, "").trim();
+  const items = /\n\s*\n/.test(text)
+    ? text.split(/\n\s*\n/).map((block) => block.replace(/\s*\n\s*/g, " "))
+    : text.split("\n");
+  return items.map((s) => s.trim()).filter(Boolean);
+}

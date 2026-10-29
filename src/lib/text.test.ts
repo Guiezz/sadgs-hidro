@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { normalizeText, splitList } from "./text";
+import { normalizeText, splitActions, splitList } from "./text";
 
 it("splitList separa por ; , e quebra de linha, preservando parênteses", () =>
   expect(splitList("Poder Público (Mun., Est., Fed.), CAGECE; COGERH\nSDA")).toEqual([
@@ -15,3 +15,18 @@ it("splitList vazio", () => {
 });
 
 it("normalizeText remove acentos e caixa", () => expect(normalizeText("  Poços ")).toBe("pocos"));
+
+it("splitActions: uma ação por linha", () =>
+  expect(splitActions("Subsídios do governo\nProgramas assistenciais\n")).toEqual([
+    "Subsídios do governo",
+    "Programas assistenciais",
+  ]));
+
+it("splitActions: blocos separados por linha em branco juntam as quebras internas", () =>
+  expect(
+    splitActions(
+      "Poços para irrigação em locais estratégicos\n\nConstruir adutora ligando\ninterligando o Açude, o\nMamoeiro",
+    ),
+  ).toEqual(["Poços para irrigação em locais estratégicos", "Construir adutora ligando interligando o Açude, o Mamoeiro"]));
+
+it("splitActions vazio", () => expect(splitActions("")).toEqual([]));

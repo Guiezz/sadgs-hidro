@@ -2,23 +2,9 @@
 "use client";
 
 import { useState } from "react";
+import { CircleCheck, Hourglass } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableRow,
-  TableHead,
-} from "@/components/ui/table";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-} from "@/components/ui/pagination";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ListChecks, CheckCircle, Search } from "lucide-react";
+import { splitActions, splitList } from "@/lib/text";
 import type { PlanoAcao } from "@/lib/types";
 
 interface Props {
@@ -26,125 +12,106 @@ interface Props {
   completed: PlanoAcao[];
 }
 
-function PaginatedTable({ data }: { data: PlanoAcao[] }) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
-  const totalPages = Math.ceil(data.length / itemsPerPage);
-  const currentData = data.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
-  );
+const PER_PAGE = 6;
+
+function ActionList({ data }: { data: PlanoAcao[] }) {
+  const [page, setPage] = useState(1);
+  const pages = Math.ceil(data.length / PER_PAGE);
+  const current = data.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   return (
-    <div>
-      <div className="border rounded-lg overflow-x-auto">
-        <Table className="table-fixed w-full">
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[45%]">Ação</TableHead>
-              <TableHead className="w-[35%]">Responsáveis</TableHead>
-              <TableHead className="w-[20%]">Situação</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {currentData.map((action, index) => (
-              <TableRow key={index}>
-                <TableCell className="font-medium whitespace-normal break-all align-top py-4">
-                  {action.acoes}
-                </TableCell>
-                <TableCell className="whitespace-normal break-all align-top py-4">
-                  {action.responsaveis}
-                </TableCell>
-                <TableCell className="whitespace-normal break-all align-top py-4">
-                  <Badge
-                    variant={
-                      action.situacao === "Concluído" ? "secondary" : "outline"
-                    }
-                  >
-                    {action.situacao}
-                  </Badge>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-      {totalPages > 1 && (
-        <div className="mt-4">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <Button
-                  variant="ghost"
-                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                  disabled={currentPage === 1}
-                >
-                  Anterior
-                </Button>
-              </PaginationItem>
-              <PaginationItem>
-                <span className="text-sm p-2">
-                  Página {currentPage} de {totalPages}
-                </span>
-              </PaginationItem>
-              <PaginationItem>
-                <Button
-                  variant="ghost"
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(p + 1, totalPages))
-                  }
-                  disabled={currentPage === totalPages}
-                >
-                  Próximo
-                </Button>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
+    <div className="flex flex-col gap-3">
+      <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
+        {current.map((a) => (
+          <li key={a.id} className="flex flex-col gap-1 rounded-xl border border-border px-4 py-3">
+            <span className="text-sm font-semibold">{splitActions(a.acoes)[0] ?? a.acoes}</span>
+            {a.responsaveis && (
+              <span className="text-[13px] text-muted-foreground">
+                Responsáveis: {splitList(a.responsaveis).slice(0, 3).join(", ")}
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
+      {pages > 1 && (
+        <nav aria-label="Paginação das ações" className="flex items-center justify-between text-sm">
+          <button
+            type="button"
+            disabled={page === 1}
+            onClick={() => setPage((p) => p - 1)}
+            className="h-10 rounded-lg px-3 font-semibold hover:bg-muted disabled:opacity-40"
+          >
+            Anterior
+          </button>
+          <span aria-live="polite">
+            Página {page} de {pages}
+          </span>
+          <button
+            type="button"
+            disabled={page === pages}
+            onClick={() => setPage((p) => p + 1)}
+            className="h-10 rounded-lg px-3 font-semibold hover:bg-muted disabled:opacity-40"
+          >
+            Próxima
+          </button>
+        </nav>
       )}
+    </div>
+  );
+}
+
+function Empty({ icon: Icon, title, text }: { icon: typeof Hourglass; title: string; text: string }) {
+  return (
+    <div className="flex flex-col items-center gap-2.5 px-3 py-7 text-center">
+      <span
+        aria-hidden="true"
+        className="flex size-14 items-center justify-center rounded-full border border-dashed border-input bg-background text-link"
+      >
+        <Icon className="size-6" />
+      </span>
+      <p className="m-0 text-[15px] font-semibold">{title}</p>
+      <p className="m-0 max-w-[260px] text-sm leading-normal text-muted-foreground">{text}</p>
     </div>
   );
 }
 
 export function ActionStatusTabs({ ongoing, completed }: Props) {
   return (
-    <div className="bg-card border border-border/40 rounded-xl flex flex-col overflow-hidden">
-      <div className="flex items-center gap-2 p-4 border-b border-border/40">
-        <Search className="h-4 w-4 text-muted-foreground" />
-        <h3 className="text-sm font-semibold">Situação das Ações</h3>
-      </div>
-      <div className="p-4">
-        <Tabs defaultValue="ongoing">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="ongoing">
-              <ListChecks className="h-4 w-4 mr-2" />
-              Em Andamento ({ongoing.length})
-            </TabsTrigger>
-            <TabsTrigger value="completed">
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Concluídas ({completed.length})
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="ongoing" className="mt-4">
-            {ongoing.length > 0 ? (
-              <PaginatedTable data={ongoing} />
-            ) : (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                Nenhuma ação em andamento no momento.
-              </p>
-            )}
-          </TabsContent>
-          <TabsContent value="completed" className="mt-4">
-            {completed.length > 0 ? (
-              <PaginatedTable data={completed} />
-            ) : (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                Nenhuma ação foi concluída ainda.
-              </p>
-            )}
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
+    <aside
+      aria-labelledby="situacao-titulo"
+      className="flex flex-[1_1_320px] flex-col gap-4 rounded-2xl border border-border bg-card p-[22px]"
+    >
+      <h2 id="situacao-titulo" className="m-0 text-lg font-bold">
+        Situação das ações
+      </h2>
+      <Tabs defaultValue="ongoing">
+        <TabsList aria-label="Filtrar por situação" className="grid h-auto w-full grid-cols-2 gap-1 rounded-[10px] bg-muted p-1">
+          <TabsTrigger value="ongoing" className="h-[38px] rounded-[7px] font-semibold data-[state=active]:shadow-sm">
+            Em andamento ({ongoing.length})
+          </TabsTrigger>
+          <TabsTrigger value="completed" className="h-[38px] rounded-[7px] font-semibold data-[state=active]:shadow-sm">
+            Concluídas ({completed.length})
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="ongoing" className="mt-4">
+          {ongoing.length > 0 ? (
+            <ActionList data={ongoing} />
+          ) : (
+            <Empty
+              icon={Hourglass}
+              title="Nenhuma ação em andamento"
+              text="Quando uma ação das medidas ao lado for iniciada, ela aparece aqui com os responsáveis."
+            />
+          )}
+        </TabsContent>
+        <TabsContent value="completed" className="mt-4">
+          {completed.length > 0 ? (
+            <ActionList data={completed} />
+          ) : (
+            <Empty icon={CircleCheck} title="Nenhuma ação concluída" text="As ações finalizadas aparecem aqui." />
+          )}
+        </TabsContent>
+      </Tabs>
+    </aside>
   );
 }
