@@ -21,7 +21,7 @@ export function SectionCard({ id, title, description, actions, className, childr
           <h2 id={id} className="m-0 text-lg font-bold">
             {title}
           </h2>
-          {description && <p className="m-0 text-sm text-muted-foreground">{description}</p>}
+          {description && <p className="m-0 text-sm text-muted-foreground texto-corrido">{description}</p>}
         </div>
         {actions && <div className="flex flex-wrap items-center gap-3">{actions}</div>}
       </div>

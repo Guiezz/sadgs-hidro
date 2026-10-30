@@ -168,6 +168,12 @@
     text-transform: uppercase;
     color: var(--link);
   }
+
+  .texto-corrido {
+    text-align: justify;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

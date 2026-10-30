@@ -122,7 +122,7 @@ export default function VisaoGeralPage() {
           </h2>
           {paragraphs.length > 0 ? (
             paragraphs.map((p, i) => (
-              <p key={i} className="m-0 max-w-[68ch] text-base leading-[1.7] text-pretty">
+              <p key={i} className="m-0 max-w-[68ch] text-base leading-[1.7] texto-corrido">
                 {p}
               </p>
             ))

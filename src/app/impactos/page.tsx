@@ -68,7 +68,7 @@ export default function ImpactosPage() {
           >
             Conte como a seca afeta o seu dia a dia
           </h2>
-          <p className="m-0 max-w-[62ch] text-base leading-[1.65] text-sidebar-foreground">
+          <p className="m-0 max-w-[62ch] text-base leading-[1.65] text-sidebar-foreground texto-corrido">
             O formulário reúne a percepção pessoal do impacto das secas no cotidiano individual, familiar e no
             trabalho. Sua participação ajuda a identificar e avaliar esses impactos em suas diversas dimensões.
           </p>
@@ -144,13 +144,13 @@ export default function ImpactosPage() {
           O contexto local
         </h2>
         <div className="flex min-w-0 flex-[999_1_480px] flex-col gap-3.5">
-          <p className="m-0 max-w-[68ch] text-base leading-[1.7]">
+          <p className="m-0 max-w-[68ch] text-base leading-[1.7] texto-corrido">
             O <strong>{reservoir.nome}</strong>
             {municipios ? `, que atende ${municipios} (CE),` : ""} enfrenta desafios significativos durante
             períodos de seca prolongada, com impactos sobre a provisão de água, a economia, o bem-estar social e o
             meio ambiente.
           </p>
-          <p className="m-0 max-w-[68ch] text-base leading-[1.7]">
+          <p className="m-0 max-w-[68ch] text-base leading-[1.7] texto-corrido">
             A vulnerabilidade do sistema reflete a necessidade de políticas integradas que promovam a convivência
             sustentável com a seca, garantindo segurança hídrica e qualidade de vida para a população.
           </p>
