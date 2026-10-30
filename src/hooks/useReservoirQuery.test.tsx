@@ -8,19 +8,22 @@ import { useReservoirQuery } from "./useReservoirQuery";
 const r = (id: number): Reservatorio => ({ id, nome: `R${id}`, municipio: "X", capacidade_hm3: 1 });
 
 function wrapperFor(getSelected: () => Reservatorio | null) {
-  return ({ children }: { children: ReactNode }) => (
-    <ReservoirContext.Provider
-      value={{
-        reservatorios: [],
-        selectedReservoir: getSelected(),
-        setSelectedReservoir: () => {},
-        isLoading: false,
-        error: null,
-      }}
-    >
-      {children}
-    </ReservoirContext.Provider>
-  );
+  function Wrapper({ children }: { children: ReactNode }) {
+    return (
+      <ReservoirContext.Provider
+        value={{
+          reservatorios: [],
+          selectedReservoir: getSelected(),
+          setSelectedReservoir: () => {},
+          isLoading: false,
+          error: null,
+        }}
+      >
+        {children}
+      </ReservoirContext.Provider>
+    );
+  }
+  return Wrapper;
 }
 
 it("descarta resposta antiga ao trocar de reservatório", async () => {

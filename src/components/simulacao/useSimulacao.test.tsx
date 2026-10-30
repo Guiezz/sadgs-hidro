@@ -25,13 +25,16 @@ import { useSimulacao } from "./useSimulacao";
 const r = (id: number, nome: string): Reservatorio => ({ id, nome, municipio: "", capacidade_hm3: 1 });
 
 function wrapperFor(get: () => Reservatorio | null) {
-  return ({ children }: { children: ReactNode }) => (
-    <ReservoirContext.Provider
-      value={{ reservatorios: [], selectedReservoir: get(), setSelectedReservoir: () => {}, isLoading: false, error: null }}
-    >
-      {children}
-    </ReservoirContext.Provider>
-  );
+  function Wrapper({ children }: { children: ReactNode }) {
+    return (
+      <ReservoirContext.Provider
+        value={{ reservatorios: [], selectedReservoir: get(), setSelectedReservoir: () => {}, isLoading: false, error: null }}
+      >
+        {children}
+      </ReservoirContext.Provider>
+    );
+  }
+  return Wrapper;
 }
 
 beforeEach(() => {
