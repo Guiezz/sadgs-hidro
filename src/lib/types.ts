@@ -102,15 +102,16 @@ export interface BalancoMensal {
   "Evaporação (m³/s)": number;
 }
 
+// Formato real de /water-balance (rótulos montados pelo controller).
 export interface ComposicaoDemanda {
-  usos: string;
-  demandas_hm3: number;
+  Uso: string;
+  "Vazão (L/s)": number;
 }
 
 export interface OfertaDemanda {
-  cenarios: string;
-  "oferta_l/s": number;
-  "demanda_l/s": number;
+  "Cenário": string;
+  "Oferta (L/s)": number;
+  "Demanda (L/s)": number;
 }
 
 // --- TIPOS ADICIONAIS ---

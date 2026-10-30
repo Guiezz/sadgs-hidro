@@ -51,6 +51,7 @@
   --color-meta-3: var(--meta-3);
   --color-decline: var(--decline);
   --color-scarcity: var(--scarcity);
+  --color-water-light: var(--water-light);
   --color-accent-border: var(--accent-border);
   --color-estado-normal-text: var(--estado-normal-text);
   --color-estado-normal-bg: var(--estado-normal-bg);
@@ -113,6 +114,7 @@
   --meta-3: #c0392b;
   --decline: #a8480a; /* variação negativa */
   --scarcity: #f0a35e; /* série de escassez */
+  --water-light: #7fb3c8;
   --accent-border: #f3c9a3;
   --chart-grid: #f0e4d6;
   --accent: #fde6d3;
