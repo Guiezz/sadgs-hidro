@@ -36,16 +36,16 @@ export function KPICards({
           <CardTitle className="text-sm font-medium text-muted-foreground flex justify-between items-center">
             Frequência de Falha
             {frequenciaFalha > 0 ? (
-              <AlertTriangle className="h-4 w-4 text-red-500" />
+              <AlertTriangle className="h-4 w-4 text-estado-severa-text" />
             ) : (
-              <CheckCircle className="h-4 w-4 text-green-500" />
+              <CheckCircle className="h-4 w-4 text-estado-normal-text" />
             )}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-baseline gap-2">
             <span
-              className={`text-3xl font-bold ${frequenciaFalha > 0 ? "text-red-600" : "text-green-600"}`}
+              className={`text-3xl font-bold ${frequenciaFalha > 0 ? "text-estado-severa-text" : "text-estado-normal-text"}`}
             >
               {frequenciaFalha.toFixed(1)}%
             </span>
@@ -68,14 +68,14 @@ export function KPICards({
         </CardHeader>
         <CardContent>
           {mesesFalha.length === 0 ? (
-            <div className="flex items-center gap-2 text-green-600 font-medium h-[60px]">
+            <div className="flex items-center gap-2 text-estado-normal-text font-medium h-[60px]">
               <CheckCircle className="h-5 w-5" />
               Nenhuma falha registrada no período.
             </div>
           ) : (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold text-slate-700">
+                <span className="text-2xl font-bold text-foreground">
                   {mesesFalha.length}{" "}
                   <span className="text-sm font-normal text-muted-foreground">
                     meses
@@ -97,7 +97,7 @@ export function KPICards({
               </div>
 
               {showFailures && (
-                <div className="mt-2 max-h-[150px] overflow-y-auto border rounded-md bg-slate-50 p-2 text-sm">
+                <div className="mt-2 max-h-[150px] overflow-y-auto border rounded-md bg-background p-2 text-sm">
                   <table className="w-full text-left">
                     <thead>
                       <tr className="text-xs text-muted-foreground border-b">
@@ -117,12 +117,12 @@ export function KPICards({
                         return (
                           <tr
                             key={idx}
-                            className="border-b last:border-0 border-slate-100"
+                            className="border-b last:border-0 border-border"
                           >
-                            <td className="py-1 font-medium text-slate-700">
+                            <td className="py-1 font-medium text-foreground">
                               {formatDate(m.data)}
                             </td>
-                            <td className="py-1 text-right text-red-600">
+                            <td className="py-1 text-right text-estado-severa-text">
                               {m.retirada_hm3.toFixed(2)}
                             </td>
                             <td className="py-1 text-right text-muted-foreground">

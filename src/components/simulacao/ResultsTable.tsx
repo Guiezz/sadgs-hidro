@@ -69,18 +69,18 @@ export function ResultsTable({ data }: ResultsTableProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>Data</TableHead>
-                <TableHead className="text-right text-blue-400">
+                <TableHead className="text-right text-water">
                   Vol. Inicial
                 </TableHead>
-                <TableHead className="text-right text-green-600">
+                <TableHead className="text-right text-estado-normal-text">
                   Afluência
                 </TableHead>
                 <TableHead className="text-right">Evaporação</TableHead>
-                <TableHead className="text-right text-red-600">
+                <TableHead className="text-right text-estado-severa-text">
                   Retirada
                 </TableHead>
                 <TableHead className="text-right">Vertimento</TableHead>
-                <TableHead className="text-right text-blue-700 font-bold">
+                <TableHead className="text-right text-water font-bold">
                   Vol. Final
                 </TableHead>
               </TableRow>
@@ -92,7 +92,7 @@ export function ResultsTable({ data }: ResultsTableProps) {
                     {formatDate(item.data)}
                   </TableCell>
                   {/* Volume Inicial */}
-                  <TableCell className="text-right text-blue-400">
+                  <TableCell className="text-right text-water">
                     {item.volume_inicial_hm3.toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right">
@@ -110,7 +110,7 @@ export function ResultsTable({ data }: ResultsTableProps) {
                       : "-"}
                   </TableCell>
                   {/* Volume Final (Destaque) */}
-                  <TableCell className="text-right font-bold text-blue-700">
+                  <TableCell className="text-right font-bold text-water">
                     {item.volume_final_hm3.toFixed(2)}
                   </TableCell>
                 </TableRow>

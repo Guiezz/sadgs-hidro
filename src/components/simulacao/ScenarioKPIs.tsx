@@ -15,7 +15,7 @@ interface ScenarioKPIsProps {
 
 export function ScenarioKPIs({ cenarios }: ScenarioKPIsProps) {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(min(240px,100%),1fr))] gap-4">
       {cenarios.map((c) => (
         <Card
           key={c.nome}
@@ -30,19 +30,19 @@ export function ScenarioKPIs({ cenarios }: ScenarioKPIsProps) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               {c.frequencia_nao_atendida === 0 ? (
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-estado-normal-text" />
               ) : (
                 <AlertTriangle
                   className={`h-4 w-4 ${
                     c.frequencia_nao_atendida <= 20
-                      ? "text-amber-500"
-                      : "text-red-500"
+                      ? "text-link"
+                      : "text-estado-severa-text"
                   }`}
                 />
               )}
               {c.nome}
               {c.ganho_fna !== null && c.ganho_fna > 0 && (
-                <span className="ml-auto inline-flex items-center gap-0.5 text-xs font-semibold text-green-600 bg-green-50 px-1.5 py-0.5 rounded-full">
+                <span className="ml-auto inline-flex items-center gap-0.5 text-xs font-semibold text-estado-normal-text bg-estado-normal-bg px-1.5 py-0.5 rounded-full">
                   <TrendingDown className="h-3 w-3" />
                   {c.ganho_fna.toFixed(0)}%
                 </span>
@@ -52,10 +52,10 @@ export function ScenarioKPIs({ cenarios }: ScenarioKPIsProps) {
           <CardContent className="space-y-1.5">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Vol. Final</span>
-              <span className="font-bold text-blue-700">
+              <span className="font-bold text-water">
                 {c.volume_final.toFixed(2)} hm³
                 {c.ganho_volume !== null && c.ganho_volume > 0 && (
-                  <span className="ml-1 text-xs font-semibold text-green-600">
+                  <span className="ml-1 text-xs font-semibold text-estado-normal-text">
                     +{c.ganho_volume.toFixed(0)}%
                   </span>
                 )}
@@ -66,10 +66,10 @@ export function ScenarioKPIs({ cenarios }: ScenarioKPIsProps) {
               <span
                 className={`font-bold ${
                   c.frequencia_nao_atendida === 0
-                    ? "text-green-600"
+                    ? "text-estado-normal-text"
                     : c.frequencia_nao_atendida <= 20
-                      ? "text-amber-600"
-                      : "text-red-600"
+                      ? "text-link"
+                      : "text-estado-severa-text"
                 }`}
               >
                 {c.frequencia_nao_atendida.toFixed(1)}%
@@ -80,7 +80,7 @@ export function ScenarioKPIs({ cenarios }: ScenarioKPIsProps) {
               <span className="font-semibold">
                 {c.meses_com_falha} meses
                 {c.ganho_falhas !== null && c.ganho_falhas > 0 && (
-                  <span className="ml-1 text-xs font-semibold text-green-600">
+                  <span className="ml-1 text-xs font-semibold text-estado-normal-text">
                     -{c.ganho_falhas.toFixed(0)}%
                   </span>
                 )}
@@ -90,7 +90,7 @@ export function ScenarioKPIs({ cenarios }: ScenarioKPIsProps) {
               <span className="text-muted-foreground">Primeira Falha</span>
               <span className="font-semibold">
                 {c.primeira_falha ?? (
-                  <span className="text-green-600">Não ocorreu</span>
+                  <span className="text-estado-normal-text">Não ocorreu</span>
                 )}
               </span>
             </div>

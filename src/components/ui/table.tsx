@@ -8,6 +8,8 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
+      // Rolagem horizontal acessível por teclado
+      tabIndex={0}
       className="relative w-full overflow-x-auto"
     >
       <table

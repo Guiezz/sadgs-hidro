@@ -16,6 +16,7 @@ import {
   SimulacaoResponse,
 } from "@/lib/types";
 import { useReservoir } from "@/context/ReservoirContext";
+import { sumBy } from "@/lib/water";
 import { parseDataLocal } from "./helpers";
 
 export function useSimulacao() {
@@ -125,6 +126,31 @@ export function useSimulacao() {
       setSelectedAcudeId("");
     }
   }, [selectedReservoir, acudes]);
+
+  // --- VALORES ATUAIS (botões "Usar volume atual" e "Usar demanda atual") ---
+  const [volumeAtualPct, setVolumeAtualPct] = useState<number | null>(null);
+  const [demandaAtualM3s, setDemandaAtualM3s] = useState<number | null>(null);
+
+  useEffect(() => {
+    setVolumeAtualPct(null);
+    setDemandaAtualM3s(null);
+    if (!selectedReservoir) return;
+    let ativo = true;
+    api
+      .getDashboardSummary(selectedReservoir.id)
+      .then((s) => ativo && setVolumeAtualPct(s.volumePercentual))
+      .catch(() => {});
+    api
+      .getUsosAgua(selectedReservoir.id)
+      .then((usos) => {
+        const totalLs = sumBy(usos ?? [], (u) => u.vazao_normal);
+        if (ativo) setDemandaAtualM3s(totalLs > 0 ? totalLs / 1000 : null);
+      })
+      .catch(() => {});
+    return () => {
+      ativo = false;
+    };
+  }, [selectedReservoir]);
 
   // --- ESTATÍSTICAS ---
   function computeEstatistica(values: number[]): EstatisticaDescritiva {
@@ -560,6 +586,8 @@ export function useSimulacao() {
     mesesFalha,
     anoMin,
     anoMax,
+    volumeAtualPct,
+    demandaAtualM3s,
   };
 }
 
