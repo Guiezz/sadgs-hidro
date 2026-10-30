@@ -9,8 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyReservoirState } from "@/components/dashboard/EmptyReservoirState";
 import { cn } from "@/lib/utils";
 import { classOptions, matchesClass, matchesSearch, type PlanFilterState } from "./filters";
-import { PlanCard } from "./PlanCard";
 import { PlanFilters } from "./PlanFilters";
+import { PlanTable } from "./PlanTable";
 
 const PER_PAGE = 10;
 
@@ -132,10 +132,8 @@ export default function ActionPlanClient() {
             description="Ajuste a busca ou remova algum filtro."
           />
         ) : (
-          <div className={cn("flex flex-col gap-3", plans.isLoading && "opacity-60")}>
-            {current.map((p) => (
-              <PlanCard key={p.id} plano={p} />
-            ))}
+          <div className={cn(plans.isLoading && "opacity-60")}>
+            <PlanTable planos={current} />
           </div>
         )}
 
