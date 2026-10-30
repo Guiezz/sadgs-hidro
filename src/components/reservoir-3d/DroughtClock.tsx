@@ -74,9 +74,9 @@ export function DroughtClock({
       </div>
       <p className="text-[11px] text-muted-foreground text-center mt-2 leading-relaxed font-medium">
         Níveis-meta ({monthName}):{" "}
-        <span className="text-sky-600 font-bold">{safeVm1.toFixed(1)}%</span> ·{" "}
-        <span className="text-yellow-600 font-bold">{safeVm2.toFixed(1)}%</span> ·{" "}
-        <span className="text-orange-600 font-bold">{safeVm3.toFixed(1)}%</span>
+        <span className="text-water font-bold">{safeVm1.toFixed(1)}%</span> ·{" "}
+        <span className="text-estado-alerta-text font-bold">{safeVm2.toFixed(1)}%</span> ·{" "}
+        <span className="text-estado-seca-text font-bold">{safeVm3.toFixed(1)}%</span>
       </p>
     </section>
   );
