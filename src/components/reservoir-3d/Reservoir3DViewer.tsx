@@ -335,7 +335,7 @@ export default function Reservoir3DViewer({
                 <span className="w-2 h-2 rounded-full bg-water" />
                 Nível & Cor da Água
               </span>
-              <p className="text-[11px] leading-relaxed">
+              <p className="text-[11px] leading-relaxed texto-corrido">
                 A lâmina d'água sobe e preenche a bacia conforme o volume. A cor é <strong>azul</strong> acima de VM1 (Normal), mudando para <strong>amarelo</strong> (Alerta), <strong>laranja</strong> (Seca) e <strong>vermelho</strong> (Seca Severa).
               </p>
             </div>
@@ -344,7 +344,7 @@ export default function Reservoir3DViewer({
                 <span className="w-2 h-2 rounded-full bg-estado-normal-dot" />
                 Vegetação & Caatinga
               </span>
-              <p className="text-[11px] leading-relaxed">
+              <p className="text-[11px] leading-relaxed texto-corrido">
                 O bioma reage à seca: <strong>verdejante</strong> no estado Normal, <strong>oliva/amarelado</strong> em Alerta, <strong>ocre/palha</strong> na Seca e <strong>caatinga cinzenta</strong> na Seca Severa.
               </p>
             </div>
@@ -353,7 +353,7 @@ export default function Reservoir3DViewer({
                 <span className="w-2 h-2 rounded-full bg-teal-500" />
                 Descarga de Fundo
               </span>
-              <p className="text-[11px] leading-relaxed">
+              <p className="text-[11px] leading-relaxed texto-corrido">
                 Válvula de saída na base da barragem com rio a jusante, suspenso automaticamente quando atinge o estado de <strong>Seca Severa</strong>.
               </p>
             </div>
@@ -362,7 +362,7 @@ export default function Reservoir3DViewer({
                 <span className="w-2 h-2 rounded-full bg-cyan-500" />
                 Vertedouro (Soleira)
               </span>
-              <p className="text-[11px] leading-relaxed">
+              <p className="text-[11px] leading-relaxed texto-corrido">
                 Canal na ombreira da barragem. Quando o volume atinge <strong>&ge; 99%</strong>, o excesso é descarregado automaticamente pelo canal de sangria.
               </p>
             </div>
@@ -663,7 +663,7 @@ export default function Reservoir3DViewer({
                   {estadoConfig.label}
                 </Badge>
               </div>
-              <p className="text-xs text-foreground/80 leading-relaxed">
+              <p className="text-xs text-foreground/80 leading-relaxed texto-corrido">
                 {estadoConfig.description}
               </p>
               {totalVazao > 0 && (

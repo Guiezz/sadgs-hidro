@@ -16,7 +16,7 @@ export function PageHeader({ eyebrow, title, description, actions }: PageHeaderP
           {title}
         </h1>
         {description && (
-          <p className="m-0 max-w-[68ch] text-base leading-relaxed text-muted-foreground">
+          <p className="m-0 max-w-[68ch] text-base leading-relaxed text-muted-foreground texto-corrido">
             {description}
           </p>
         )}

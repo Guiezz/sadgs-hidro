@@ -112,7 +112,7 @@ export function SimulationSummary({
       </CardHeader>
       {expanded && (
         <CardContent>
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <p className="text-sm text-muted-foreground leading-relaxed texto-corrido">
             {resumo}
           </p>
         </CardContent>

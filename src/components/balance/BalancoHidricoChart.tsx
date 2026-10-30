@@ -84,7 +84,7 @@ export function BalancoHidricoChart({ data }: { data: BalancoMensal[] }) {
           </ResponsiveContainer>
         </div>
       </ChartFigure>
-      <p className="m-0 flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
+      <p className="m-0 flex items-start gap-2 text-sm leading-relaxed text-muted-foreground texto-corrido">
         <Info aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-label" />
         {resumo}
       </p>

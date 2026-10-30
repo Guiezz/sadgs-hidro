@@ -21,7 +21,7 @@ export function UsoDiagram({ src, reservatorio }: UsoDiagramProps) {
         <h2 id="diag-titulo" className="m-0 text-lg font-bold">
           Diagrama de usos
         </h2>
-        <p className="m-0 max-w-[48ch] text-[15px] leading-relaxed text-muted-foreground">
+        <p className="m-0 max-w-[48ch] text-[15px] leading-relaxed text-muted-foreground texto-corrido">
           Mapa com a localização dos pontos de captação e dos usos atendidos pelo reservatório.
         </p>
         <Dialog>

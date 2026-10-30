@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, it, vi } from "vitest";
 import { KpiCard } from "./KpiCard";
+import { PageHeader } from "./PageHeader";
 import { SegmentedControl } from "./SegmentedControl";
 import { StateBadge } from "./StateBadge";
 
@@ -57,4 +58,9 @@ it("SegmentedControl tem alvo de toque de 44px", () => {
     <SegmentedControl label="Formato" options={[{ value: "a", label: "A" }]} value="a" onChange={() => {}} />,
   );
   expect(screen.getByRole("button", { name: "A" })).toHaveClass("min-h-11");
+});
+
+it("PageHeader justifica a descrição", () => {
+  render(<PageHeader title="T" description="Texto longo" />);
+  expect(screen.getByText("Texto longo")).toHaveClass("texto-corrido");
 });
