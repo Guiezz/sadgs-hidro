@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { normalizeText, slugify, splitActions, splitList } from "./text";
+import { cellText, normalizeText, slugify, splitActions, splitList } from "./text";
 
 it("splitList separa por ; , e quebra de linha, preservando parênteses", () =>
   expect(splitList("Poder Público (Mun., Est., Fed.), CAGECE; COGERH\nSDA")).toEqual([
@@ -41,4 +41,9 @@ it("slugify gera âncoras estáveis", () => {
   expect(slugify("Créditos Institucionais")).toBe("creditos-institucionais");
   expect(slugify("COMISSÃO GESTORA DO AÇUDE ACARAPE DO MEIO")).toBe("comissao-gestora-do-acude-acarape-do-meio");
   expect(slugify("  Equipe – CEPAS/UFC  ")).toBe("equipe-cepas-ufc");
+});
+
+it("cellText junta as linhas da célula sem cortar nomes", () => {
+  expect(cellText("Sindicato do\nTrabalhadores\r\n  Rurais, SEMA ")).toBe("Sindicato do Trabalhadores Rurais, SEMA");
+  expect(cellText(null)).toBe("");
 });

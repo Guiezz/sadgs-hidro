@@ -8,6 +8,13 @@ export function normalizeText(s: string): string {
     .trim();
 }
 
+// Texto de uma célula da planilha como parágrafo. Nas células dos planos a
+// quebra de linha ora separa itens, ora só quebra o texto, então não dá
+// para separar sem cortar nomes: juntamos as linhas.
+export function cellText(raw: string | null | undefined): string {
+  return (raw ?? "").replace(/\s+/g, " ").trim();
+}
+
 // Separa listas vindas da planilha por ";", "," e quebra de linha,
 // sem quebrar vírgulas dentro de parênteses: "Poder Público (Mun., Est.)".
 export function splitList(raw: string | null | undefined): string[] {
