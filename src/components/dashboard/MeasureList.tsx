@@ -14,6 +14,8 @@ function situacaoTone(situacao: string) {
 
 const headClass = "text-xs font-semibold uppercase tracking-[0.05em] text-label";
 const cellClass = "align-top whitespace-normal py-4";
+// TableHead como cabeçalho de linha, sem o visual de th
+const rowHeadClass = `${cellClass} h-auto text-foreground`;
 
 export function MeasureList({ planos }: { planos: PlanoAcao[] }) {
   return (
@@ -31,7 +33,7 @@ export function MeasureList({ planos }: { planos: PlanoAcao[] }) {
             const tone = situacaoTone(p.situacao);
             return (
               <TableRow key={p.id} className="even:bg-muted/40">
-                <TableCell className={cn(cellClass, "font-bold")}>{i + 1}</TableCell>
+                <TableHead scope="row" className={cn(rowHeadClass, "font-bold")}>{i + 1}</TableHead>
                 <TableCell className={cellClass}>
                   <ExpandableList
                     id={`medida-${p.id}-acoes`}

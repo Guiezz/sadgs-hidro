@@ -24,7 +24,7 @@ describe("MeasureList", () => {
     render(<MeasureList planos={[plano({ id: 1 }), plano({ id: 2 })]} />);
     for (const h of ["Nº", "Ações", "Situação"])
       expect(screen.getByRole("columnheader", { name: h })).toBeInTheDocument();
-    expect(screen.getByRole("cell", { name: "2" })).toBeInTheDocument();
+    expect(screen.getByRole("rowheader", { name: "2" })).toBeInTheDocument();
   });
 
   it("situação normalizada", () => {

@@ -10,7 +10,11 @@ export function BackToTop() {
     const medir = () => setVisivel(window.scrollY > window.innerHeight);
     medir(); // página recarregada no meio da rolagem
     window.addEventListener("scroll", medir, { passive: true });
-    return () => window.removeEventListener("scroll", medir);
+    window.addEventListener("resize", medir, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", medir);
+      window.removeEventListener("resize", medir);
+    };
   }, []);
 
   if (!visivel) return null;

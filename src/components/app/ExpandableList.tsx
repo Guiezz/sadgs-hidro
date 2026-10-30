@@ -25,7 +25,7 @@ export function ExpandableList({
 
   return (
     <div className="flex flex-col gap-2.5">
-      <ul id={id} className="m-0 flex flex-col gap-1.5 pl-[18px] text-sm leading-normal">
+      <ul id={id} className="m-0 flex list-disc flex-col gap-1.5 pl-[18px] marker:text-label text-sm leading-normal">
         {shown.map((item, i) => (
           <li key={i} className="texto-corrido">
             {item}
@@ -38,7 +38,7 @@ export function ExpandableList({
           aria-expanded={open}
           aria-controls={id}
           onClick={() => setOpen((v) => !v)}
-          className="-ml-3 h-9 self-start rounded-lg px-3 text-sm font-semibold text-link hover:bg-muted"
+          className="-ml-3 min-h-11 self-start rounded-lg px-3 text-sm font-semibold text-link hover:bg-muted"
         >
           {open ? "Ver menos" : `Ver mais ${hidden} ${hidden === 1 ? noun[0] : noun[1]}`}
         </button>

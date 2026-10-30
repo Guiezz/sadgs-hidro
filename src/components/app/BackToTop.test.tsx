@@ -45,6 +45,17 @@ it("aparece depois de uma tela e some ao voltar", () => {
   expect(screen.queryByRole("button", { name: "Voltar ao topo" })).toBeNull();
 });
 
+it("reavalia ao redimensionar a janela", () => {
+  render(<BackToTop />);
+  act(() => rolar(900, 1000));
+  expect(screen.queryByRole("button", { name: "Voltar ao topo" })).toBeNull();
+  Object.defineProperty(window, "innerHeight", { configurable: true, value: 800 });
+  act(() => {
+    fireEvent(window, new Event("resize"));
+  });
+  expect(screen.getByRole("button", { name: "Voltar ao topo" })).toBeInTheDocument();
+});
+
 it("clique sobe e devolve o foco ao conteúdo", async () => {
   render(
     <>

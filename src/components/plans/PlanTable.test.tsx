@@ -38,6 +38,14 @@ describe("PlanTable", () => {
     expect(screen.getAllByRole("listitem")).toHaveLength(5);
     await userEvent.click(screen.getByRole("button", { name: "Ver mais 2 itens" }));
     expect(screen.getAllByRole("listitem")).toHaveLength(7);
+    await userEvent.click(screen.getByRole("button", { name: "Ver menos" }));
+    expect(screen.getAllByRole("listitem")).toHaveLength(5);
+    expect(screen.getByRole("button", { name: "Ver mais 2 itens" })).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("o impacto é o cabeçalho da linha", () => {
+    render(<PlanTable planos={[plano({ id: 1, tipos_impactos: "IMPACTOS ECONÔMICOS" })]} />);
+    expect(screen.getByRole("rowheader", { name: /Impactos econômicos/ })).toBeInTheDocument();
   });
 
   it("exatamente 5 ações não tem Ver mais", () => {
