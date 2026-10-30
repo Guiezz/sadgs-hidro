@@ -4,8 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useReservoir } from "@/context/ReservoirContext";
 import type { Reservatorio } from "@/lib/types";
 
-// Busca dados do reservatório selecionado. Se a seleção mudar no meio de uma
-// requisição, a resposta antiga é descartada.
+type Resultado<T> = { id: number; data: T | null; error: string | null };
+
+// Busca dados do reservatório selecionado. O resultado fica preso ao
+// reservatório que o pediu: ao trocar a seleção, o dado anterior some na hora
+// e respostas atrasadas são descartadas. Mudanças só nos `deps` mantêm o dado
+// atual na tela até a nova resposta chegar.
 export function useReservoirQuery<T>(
   fetcher: (id: number) => Promise<T>,
   deps: unknown[] = [],
@@ -18,9 +22,8 @@ export function useReservoirQuery<T>(
 } {
   const { selectedReservoir } = useReservoir();
   const id = selectedReservoir?.id ?? null;
-  const [data, setData] = useState<T | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(id !== null);
+  const [resultado, setResultado] = useState<Resultado<T> | null>(null);
+  const [pendente, setPendente] = useState(false);
   const [nonce, setNonce] = useState(0);
   const requestRef = useRef(0);
   const fetcherRef = useRef(fetcher);
@@ -28,29 +31,37 @@ export function useReservoirQuery<T>(
 
   useEffect(() => {
     if (id === null) {
-      setData(null);
-      setIsLoading(false);
+      requestRef.current++;
+      setPendente(false);
       return;
     }
     const request = ++requestRef.current;
-    setIsLoading(true);
-    setError(null);
+    setPendente(true);
     fetcherRef
       .current(id)
-      .then((result) => {
-        if (request === requestRef.current) setData(result);
+      .then((data) => {
+        if (request === requestRef.current) setResultado({ id, data, error: null });
       })
       .catch((err: unknown) => {
         if (request !== requestRef.current) return;
-        setError(err instanceof Error ? err.message : "Não foi possível carregar os dados.");
+        const error = err instanceof Error ? err.message : "Não foi possível carregar os dados.";
+        setResultado({ id, data: null, error });
       })
       .finally(() => {
-        if (request === requestRef.current) setIsLoading(false);
+        if (request === requestRef.current) setPendente(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, nonce, ...deps]);
 
   const reload = useCallback(() => setNonce((n) => n + 1), []);
 
-  return { data, error, isLoading, reload, reservoir: selectedReservoir };
+  const doReservatorio = resultado !== null && resultado.id === id;
+  return {
+    data: doReservatorio ? resultado.data : null,
+    // Durante um reload o erro anterior some, como antes.
+    error: doReservatorio && !pendente ? resultado.error : null,
+    isLoading: id !== null && (pendente || !doReservatorio),
+    reload,
+    reservoir: selectedReservoir,
+  };
 }
