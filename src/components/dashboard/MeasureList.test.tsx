@@ -22,7 +22,7 @@ const plano = (over: Partial<PlanoAcao>): PlanoAcao => ({
 describe("MeasureList", () => {
   it("cabeçalhos e numeração", () => {
     render(<MeasureList planos={[plano({ id: 1 }), plano({ id: 2 })]} />);
-    for (const h of ["Nº", "Ações", "Situação"])
+    for (const h of ["Nº", "Ação", "Descrição", "Situação"])
       expect(screen.getByRole("columnheader", { name: h })).toBeInTheDocument();
     expect(screen.getByRole("rowheader", { name: "2" })).toBeInTheDocument();
   });
@@ -42,8 +42,20 @@ describe("MeasureList", () => {
     expect(screen.getByText("Não iniciada")).toBeInTheDocument();
   });
 
-  it("mais de 5 ações abre com Ver mais", () => {
-    render(<MeasureList planos={[plano({ acoes: "a\nb\nc\nd\ne\nf" })]} />);
-    expect(screen.getByRole("button", { name: "Ver mais 1 ação" })).toBeInTheDocument();
+  it("ação e descrição com o texto da planilha inteiro", () => {
+    render(
+      <MeasureList
+        planos={[plano({ acoes: "Uso de culturas que\nnecessitam um menor\nemprego de água", descricao_acao: "Estabelecer\nconvênios" })]}
+      />,
+    );
+    expect(screen.getByText("Uso de culturas que necessitam um menor emprego de água")).toBeInTheDocument();
+    expect(screen.getByText("Estabelecer convênios")).toBeInTheDocument();
+    expect(screen.queryAllByRole("listitem")).toHaveLength(0);
+  });
+
+  it("células vazias viram travessão e há aviso sobre o conjunto", () => {
+    render(<MeasureList planos={[plano({})]} />);
+    expect(screen.getAllByText("—")).toHaveLength(2);
+    expect(screen.getByText(/tipo de impacto/)).toBeInTheDocument();
   });
 });

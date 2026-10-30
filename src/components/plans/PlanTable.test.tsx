@@ -1,5 +1,4 @@
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import type { PlanoAcao } from "@/lib/types";
 import { PlanTable } from "./PlanTable";
@@ -23,7 +22,7 @@ const plano = (over: Partial<PlanoAcao>): PlanoAcao => ({
 describe("PlanTable", () => {
   it("cabeçalhos da tabela", () => {
     render(<PlanTable planos={[plano({})]} />);
-    for (const h of ["Impacto", "Ações", "Classe", "Responsáveis"])
+    for (const h of ["Impacto", "Descrição da ação", "Classe da ação", "Responsáveis"])
       expect(screen.getByRole("columnheader", { name: h })).toBeInTheDocument();
   });
 
@@ -33,42 +32,36 @@ describe("PlanTable", () => {
     expect(screen.getByText("Impactos econômicos")).toBeInTheDocument();
   });
 
-  it("mais de 5 ações abre com Ver mais", async () => {
-    render(<PlanTable planos={[plano({ acoes: "a\nb\nc\nd\ne\nf\ng" })]} />);
-    expect(screen.getAllByRole("listitem")).toHaveLength(5);
-    await userEvent.click(screen.getByRole("button", { name: "Ver mais 2 itens" }));
-    expect(screen.getAllByRole("listitem")).toHaveLength(7);
-    await userEvent.click(screen.getByRole("button", { name: "Ver menos" }));
-    expect(screen.getAllByRole("listitem")).toHaveLength(5);
-    expect(screen.getByRole("button", { name: "Ver mais 2 itens" })).toHaveAttribute("aria-expanded", "false");
-  });
-
   it("o impacto é o cabeçalho da linha", () => {
     render(<PlanTable planos={[plano({ id: 1, tipos_impactos: "IMPACTOS ECONÔMICOS" })]} />);
     expect(screen.getByRole("rowheader", { name: /Impactos econômicos/ })).toBeInTheDocument();
   });
 
-  it("exatamente 5 ações não tem Ver mais", () => {
-    render(<PlanTable planos={[plano({ acoes: "a\nb\nc\nd\ne" })]} />);
-    expect(screen.queryByRole("button", { name: /Ver mais/ })).toBeNull();
-  });
-
-  it("sem ações mostra aviso", () => {
-    render(<PlanTable planos={[plano({ acoes: "" })]} />);
-    expect(screen.getByText("Sem itens cadastrados.")).toBeInTheDocument();
-  });
-
-  it("classe e responsáveis deduplicados; vazios viram travessão", () => {
+  it("mostra o texto da planilha inteiro, sem cortar nem deduplicar", () => {
     render(
       <PlanTable
         planos={[
-          plano({ id: 1, classes_acao: "Educação\nEducação", responsaveis: "COGERH; SRH; COGERH" }),
-          plano({ id: 2 }),
+          plano({
+            descricao_acao: "Monitoramento da evasão dos\ntrabalhadores agrícolas",
+            classes_acao: "Medidas econômicas e\nsociais",
+            responsaveis: "Sindicato do\nTrabalhadores\nRurais, COGERH\nCOGERH",
+          }),
         ]}
       />,
     );
-    expect(screen.getByText("Educação")).toBeInTheDocument();
-    expect(screen.getByText("COGERH, SRH")).toBeInTheDocument();
-    expect(screen.getAllByText("—")).toHaveLength(2);
+    expect(screen.getByText("Monitoramento da evasão dos trabalhadores agrícolas")).toBeInTheDocument();
+    expect(screen.getByText("Medidas econômicas e sociais")).toBeInTheDocument();
+    expect(screen.getByText("Sindicato do Trabalhadores Rurais, COGERH COGERH")).toBeInTheDocument();
+    expect(screen.queryAllByRole("listitem")).toHaveLength(0);
+  });
+
+  it("células vazias viram travessão", () => {
+    render(<PlanTable planos={[plano({})]} />);
+    expect(screen.getAllByText("—")).toHaveLength(3);
+  });
+
+  it("avisa que responsáveis e classes valem para o conjunto", () => {
+    render(<PlanTable planos={[plano({})]} />);
+    expect(screen.getByText(/valem para o conjunto/)).toBeInTheDocument();
   });
 });
