@@ -24,7 +24,7 @@ import { DroughtClock } from "./DroughtClock";
 const ReservoirScene = dynamic(() => import("./ReservoirScene"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-full min-h-[440px] md:min-h-[540px] flex flex-col items-center justify-center bg-[#dcecf1] text-muted-foreground rounded-2xl border border-primary/20">
+    <div className="w-full h-full min-h-[440px] md:min-h-[540px] flex flex-col items-center justify-center bg-water-soft text-muted-foreground rounded-2xl border border-primary/20">
       <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mb-3" />
       <p className="text-sm font-medium text-muted-foreground">Carregando modelo tridimensional...</p>
     </div>
@@ -44,7 +44,7 @@ const ESTADO_CONFIG = {
     textHex: "#1f5c34", // = --estado-*-text (contraste AA)
     colorHex: "#2ea7df", // Azul límpido clássico
     badgeClass: "bg-water-soft text-water border-border",
-    dotClass: "bg-[#2ea7df]",
+    dotClass: "bg-water",
     description: "Volume confortável acima do gatilho VM1. Operação e alocação plenas.",
   },
   Alerta: {
@@ -52,7 +52,7 @@ const ESTADO_CONFIG = {
     textHex: "#6e4d00", // = --estado-*-text (contraste AA)
     colorHex: "#f6d74b", // Amarelo
     badgeClass: "bg-estado-alerta-bg text-estado-alerta-text border-border",
-    dotClass: "bg-[#f6d74b]",
+    dotClass: "bg-estado-alerta-dot",
     description: "Volume entre Meta 1 (VM1) e Meta 2 (VM2). Adoção de medidas preventivas de monitoramento.",
   },
   Seca: {
@@ -60,7 +60,7 @@ const ESTADO_CONFIG = {
     textHex: "#8f3d08", // = --estado-*-text (contraste AA)
     colorHex: "#f3a13b", // Laranja
     badgeClass: "bg-estado-seca-bg text-estado-seca-text border-border",
-    dotClass: "bg-[#f3a13b]",
+    dotClass: "bg-estado-seca-dot",
     description: "Volume entre Meta 2 (VM2) e Meta 3 (VM3). Restrições e contingenciamento de vazões.",
   },
   "Seca Severa": {
@@ -68,7 +68,7 @@ const ESTADO_CONFIG = {
     textHex: "#8c1f16", // = --estado-*-text (contraste AA)
     colorHex: "#e85b4f", // Vermelho
     badgeClass: "bg-estado-severa-bg text-estado-severa-text border-border",
-    dotClass: "bg-[#e85b4f]",
+    dotClass: "bg-estado-severa-dot",
     description: "Volume abaixo da Meta 3 (VM3). Suspensão de usos não prioritários.",
   },
 };
@@ -216,7 +216,7 @@ export default function Reservoir3DViewer({
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       {/* Coluna Principal: Visualizador 3D + Dinâmica Hidráulica */}
       <div className="lg:col-span-8 flex flex-col gap-5">
-        <div className="relative aspect-[4/3] md:aspect-video lg:h-[540px] rounded-2xl overflow-hidden shadow-lg border border-primary/20 bg-[#dcecf1]">
+        <div className="relative aspect-[4/3] md:aspect-video lg:h-[540px] rounded-2xl overflow-hidden shadow-lg border border-primary/20 bg-water-soft">
           {/* Rótulo superior do céu */}
           <div className="absolute top-3 right-4 bg-secondary/80 backdrop-blur-sm text-white/90 text-[10px] font-semibold px-3 py-1 rounded-full uppercase tracking-wider select-none pointer-events-none z-10 border border-white/10">
             Modelo Conceitual • Volume Não Batimétrico
@@ -552,14 +552,14 @@ export default function Reservoir3DViewer({
                   setModo("simulacao");
                   setIsPlaying((prev) => !prev);
                 }}
-                className={`w-full py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 text-white transition-all shadow-sm ${
+                className={`w-full min-h-11 py-2 px-3 rounded-[10px] text-sm font-bold flex items-center justify-center gap-2 transition-all ${
                   limitReached && !isPlaying
                     ? "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
-                    : "bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 active:scale-[0.99] shadow-orange-500/20"
+                    : "bg-primary text-primary-foreground hover:bg-primary-hover active:scale-[0.99]"
                 }`}
               >
-                <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">
-                  {isPlaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3 fill-white ml-0.5" />}
+                <span aria-hidden="true" className="w-5 h-5 rounded-full bg-black/10 flex items-center justify-center text-[10px]">
+                  {isPlaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3 fill-current ml-0.5" />}
                 </span>
                 {isPlaying ? "Pausar Simulação" : "Iniciar Simulação"}
               </button>
