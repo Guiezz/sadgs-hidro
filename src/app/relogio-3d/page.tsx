@@ -1,12 +1,13 @@
 "use client";
 
+import { PageHeader } from "@/components/app/PageHeader";
 import { useState, useEffect } from "react";
 import { useReservoir } from "@/context/ReservoirContext";
 import { config } from "@/config";
 import { GatilhoPGPSMes, DashboardSummary, UsoAgua } from "@/lib/types";
 import { EmptyReservoirState } from "@/components/dashboard/EmptyReservoirState";
 import Reservoir3DViewer from "@/components/reservoir-3d/Reservoir3DViewer";
-import { Loader2, Layers3 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 export default function Relogio3DPage() {
   const { selectedReservoir } = useReservoir();
@@ -113,28 +114,19 @@ export default function Relogio3DPage() {
 
   // 4. ESTADO: SUCESSO (mantém o componente montado mesmo durante transições de reservatório)
   return (
-    <main className="flex flex-1 flex-col gap-6 p-4 lg:gap-8 lg:p-6 bg-background overflow-x-hidden">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 p-2.5 rounded-xl text-primary">
-            <Layers3 className="h-6 w-6" />
-          </div>
-          <div className="space-y-0.5">
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-              Painel Tridimensional
-            </p>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-              Relógio da Seca 3D — {selectedReservoir.nome}
-            </h1>
-          </div>
-        </div>
-        {isLoading && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/60 px-3 py-1.5 rounded-full border border-border/40 animate-pulse">
-            <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
-            <span>Atualizando...</span>
-          </div>
-        )}
-      </div>
+    <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-6 px-4 pt-9 pb-20 md:px-10">
+      <PageHeader
+        eyebrow="Painel tridimensional"
+        title={`Relógio da Seca 3D — ${selectedReservoir.nome}`}
+        actions={
+          isLoading && (
+            <span role="status" className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1.5 text-xs text-muted-foreground">
+              <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
+              Atualizando…
+            </span>
+          )
+        }
+      />
 
       <Reservoir3DViewer
         reservoirName={selectedReservoir.nome}
@@ -144,6 +136,6 @@ export default function Relogio3DPage() {
         gatilhos={gatilhos}
         waterUses={waterUses}
       />
-    </main>
+    </div>
   );
 }

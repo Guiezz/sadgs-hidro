@@ -1,19 +1,20 @@
 // src/components/dashboard/InteractiveMap.tsx
 "use client";
 
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, ZoomControl } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { useTheme } from "next-themes";
 
 type Props = {
   lat: number;
   lon: number;
+  nome: string;
 };
 
 // --- CORREÇÃO DO ÍCONE ---
 // Como Turbopack não suporta import de imagens diretamente,
 // usamos URLs absolutas da pasta pública
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 
 L.Icon.Default.mergeOptions({
@@ -23,30 +24,23 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
-export default function InteractiveMap({ lat, lon }: Props) {
-  const { theme } = useTheme();
-
-  const darkMapUrl =
-    "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
-  const lightMapUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-
+export default function InteractiveMap({ lat, lon, nome }: Props) {
   return (
     <MapContainer
       center={[lat, lon]}
-      zoom={15}
+      zoom={13}
       scrollWheelZoom={false}
-      className="h-[50vh] w-full rounded-md border relative z-0"
+      zoomControl={false}
+      className="relative z-0 h-[380px] w-full rounded-[14px] border border-border"
     >
+      {/* Leaflet usa o título como aria-label dos botões */}
+      <ZoomControl position="topleft" zoomInTitle="Aproximar mapa" zoomOutTitle="Afastar mapa" />
       <TileLayer
-        key={theme}
-        url={theme === "dark" ? darkMapUrl : lightMapUrl}
-        attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>'
       />
-      <Marker position={[lat, lon]}>
-        <Popup>
-          Açude Patu
-          <br />[{lat.toFixed(4)}, {lon.toFixed(4)}]
-        </Popup>
+      <Marker position={[lat, lon]} alt={`Localização do açude ${nome}`}>
+        <Popup>{nome}</Popup>
       </Marker>
     </MapContainer>
   );

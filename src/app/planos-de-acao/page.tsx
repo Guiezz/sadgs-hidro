@@ -1,19 +1,24 @@
 // src/app/planos-de-acao/page.tsx
+"use client";
 
+import { useReservoir } from "@/context/ReservoirContext";
 import ActionPlanClient from "@/components/plans/ActionPlanClient";
+import { PageHeader } from "@/components/app/PageHeader";
 
 export default function ActionPlansPage() {
+  const { selectedReservoir } = useReservoir();
   return (
-    <main className="flex flex-1 flex-col gap-6 p-4 lg:gap-8 lg:p-6 bg-background">
-      <div className="space-y-1">
-        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-          Catálogo
-        </p>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-          Planos de Ação
-        </h1>
-      </div>
+    <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-6 px-4 pt-9 pb-20 md:px-10">
+      <PageHeader
+        eyebrow="Catálogo"
+        title="Planos de Ação"
+        description={
+          selectedReservoir
+            ? `Ações estratégicas e emergenciais do Plano de Seca do ${selectedReservoir.nome}, com as classes de medida e os responsáveis por cada uma.`
+            : "Ações estratégicas e emergenciais dos Planos de Seca, com as classes de medida e os responsáveis por cada uma."
+        }
+      />
       <ActionPlanClient />
-    </main>
+    </div>
   );
 }

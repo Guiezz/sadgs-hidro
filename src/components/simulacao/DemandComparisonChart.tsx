@@ -23,18 +23,18 @@ import { formatDate, parseDataLocal } from "./helpers";
 import { ResultadoCenario, GatilhoPGPSMes } from "@/lib/types";
 
 const CORES = [
-  "#2563eb",
-  "#dc2626",
-  "#16a34a",
-  "#d97706",
-  "#8b5cf6",
-  "#ec4899",
+  "var(--water)",
+  "var(--estado-severa-dot)",
+  "var(--estado-normal-dot)",
+  "var(--estado-alerta-dot)",
+  "var(--chart-5)",
+  "var(--chart-3)",
 ];
 
 const GATILHO_CORES = {
-  meta3: "#ca8a04",
-  meta2: "#ea580c",
-  meta1: "#dc2626",
+  meta3: "var(--meta-2)",
+  meta2: "var(--estado-seca-dot)",
+  meta1: "var(--estado-severa-dot)",
 };
 
 interface DemandComparisonChartProps {
@@ -235,7 +235,7 @@ export function DemandComparisonChart({
                               {(entry.value as number).toFixed(2)}{" "}
                               {isPercent ? "%" : "hm³"}
                               {hasDeficit && (
-                                <span className="ml-1 text-red-500">
+                                <span className="ml-1 text-estado-severa-text">
                                   {" "}⚠ déficit
                                 </span>
                               )}
@@ -278,7 +278,7 @@ export function DemandComparisonChart({
                 contentStyle={{
                   fontSize: "12px",
                   backgroundColor: "rgba(255, 255, 255, 0.95)",
-                  border: "1px solid #e2e8f0",
+                  border: "1px solid var(--border)",
                   borderRadius: "6px",
                   padding: "8px",
                 }}
@@ -318,7 +318,7 @@ export function DemandComparisonChart({
                         cx={cx}
                         cy={cy}
                         r={6}
-                        fill="#dc2626"
+                        fill="var(--estado-severa-dot)"
                         stroke="#fff"
                         strokeWidth={2}
                       />

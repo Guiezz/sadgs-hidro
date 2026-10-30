@@ -1,243 +1,160 @@
 "use client";
 
-import { ChartDataPoint } from "@/lib/types";
-
-import { Info } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useReducedMotion } from "framer-motion";
+import { ChevronDown, Info } from "lucide-react";
 import {
-  LineChart,
+  CartesianGrid,
   Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
 } from "recharts";
-import {
-  Tooltip as ShadcnTooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale/pt-BR";
+import type { ChartDataPoint } from "@/lib/types";
+import { type ChartPeriod, filterByPeriod } from "@/lib/monitoring";
+import { formatNumber } from "@/lib/format";
+import { ChartFigure } from "@/components/app/ChartFigure";
+import { EmptyState } from "@/components/app/EmptyState";
+import { SectionCard } from "@/components/app/SectionCard";
+import { SegmentedControl } from "@/components/app/SegmentedControl";
 
 interface VolumeChartProps {
   data: ChartDataPoint[];
   capacidadeMaxima?: number;
+  reservatorio: string;
 }
 
-export function VolumeChart({
-  data,
-  capacidadeMaxima,
-}: VolumeChartProps) {
-  // Converte as metas para a escala de porcentagem (0-100)
-  const chartData = data.map((point) => ({
-    ...point,
-    meta1: point.meta1 * 100,
-    meta2: point.meta2 * 100,
-    meta3: point.meta3 * 100,
-  }));
+const PERIODS: { value: ChartPeriod; label: string }[] = [
+  { value: "1a", label: "1 ano" },
+  { value: "5a", label: "5 anos" },
+  { value: "10a", label: "10 anos" },
+  { value: "tudo", label: "Tudo" },
+];
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      const dataPoint = payload[0].payload;
-      return (
-        <div className="p-2 bg-white border border-gray-200 rounded-md shadow-sm">
-          <p className="font-bold text-gray-800">{`Data: ${format(new Date(label), "dd/MM/yyyy", { locale: ptBR })}`}</p>
-          <p
-            style={{ color: "#3f1d0f" }}
-          >{`Volume: ${dataPoint.volume.toFixed(2)} Hm³`}</p>
-          <p
-            style={{ color: "#991b1b" }}
-          >{`Meta 1: ${dataPoint.meta1.toFixed(1)}%`}</p>
-          <p
-            style={{ color: "#b45309" }}
-          >{`Meta 2: ${dataPoint.meta2.toFixed(1)}%`}</p>
-          <p
-            style={{ color: "#ca8a04" }}
-          >{`Meta 3: ${dataPoint.meta3.toFixed(1)}%`}</p>
-        </div>
-      );
-    }
-    return null;
-  };
+const SERIES = [
+  { key: "volume", label: "Volume", color: "var(--water)", width: 3, dash: undefined },
+  { key: "meta1", label: "Meta 1", color: "var(--meta-1)", width: 2, dash: "6 4" },
+  { key: "meta2", label: "Meta 2", color: "var(--meta-2)", width: 2, dash: "2 3" },
+  { key: "meta3", label: "Meta 3", color: "var(--meta-3)", width: 2, dash: "10 3 2 3" },
+] as const;
+
+const monthYear = (iso: string) => {
+  const [y, m] = iso.split("-");
+  return `${m}/${y}`;
+};
+
+export function VolumeChart({ data, capacidadeMaxima, reservatorio }: VolumeChartProps) {
+  const [period, setPeriod] = useState<ChartPeriod>("10a");
+  const reduceMotion = useReducedMotion();
+
+  // Metas chegam como fração da capacidade; no gráfico ficam em hm³, no mesmo eixo do volume.
+  const chartData = useMemo(() => {
+    const cap = capacidadeMaxima ?? 0;
+    return filterByPeriod(data, period).map((p) => ({
+      Data: p.Data,
+      volume: p.volume,
+      meta1: cap ? p.meta1 * cap : null,
+      meta2: cap ? p.meta2 * cap : null,
+      meta3: cap ? p.meta3 * cap : null,
+    }));
+  }, [data, period, capacidadeMaxima]);
+
+  const first = chartData[0];
+  const last = chartData[chartData.length - 1];
+  const ariaLabel =
+    first && last
+      ? `Gráfico de linhas do volume do ${reservatorio} entre ${monthYear(first.Data)} e ${monthYear(last.Data)}: de ${formatNumber(first.volume)} para ${formatNumber(last.volume)} hm³, comparado às metas 1, 2 e 3.`
+      : "Gráfico de volume sem dados.";
 
   return (
-    <section className="bg-card border border-border/40 rounded-xl">
-      <div className="flex flex-row items-center justify-between p-4 border-b border-border/40">
-        <h2 className="text-base font-semibold">📈 Volume (Hm³) comparado com Metas</h2>
-
-        <div className="flex items-center gap-2">
-          <TooltipProvider>
-            <ShadcnTooltip>
-              <TooltipTrigger asChild>
-                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent className="max-w-[280px]">
-                <p>
-                  As **Metas** representam os volumes esperados (em porcentagem da
-                  capacidade total) para diferentes cenários de operação e
-                  planejamento hídrico.
-                </p>
-              </TooltipContent>
-            </ShadcnTooltip>
-          </TooltipProvider>
-        </div>
-      </div>
-
-      <div className="p-4">
-        <div style={{ width: "100%", height: 400 }}>
-          <ResponsiveContainer>
-            <LineChart
-              data={chartData}
-              margin={{ top: 10, right: 30, left: 20, bottom: 40 }}
-            >
-              <CartesianGrid strokeDasharray="2 4" stroke="#e5e5e5" />
-              <XAxis
-                dataKey="Data"
-                angle={-45}
-                textAnchor="end"
-                height={60}
-                tickFormatter={(str) => {
-                  try {
-                    const date = new Date(str);
-                    return date
-                      .toLocaleDateString("pt-BR", {
-                        month: "short",
-                        year: "numeric",
-                      })
-                      .replace(". de ", "/");
-                  } catch (e) {
-                    return str;
-                  }
-                }}
-                tick={{ fontSize: 11, fill: "#6b7280" }}
-              />
-
-              {/* 3. Configuração do Eixo Y Esquerdo com domínio fixo */}
-              <YAxis
-                yAxisId="left"
-                tick={{ fontSize: 12, fill: "#6b7280" }}
-                width={50}
-                // Se capacidadeMaxima existir, usa [0, capacidadeMaxima], senão "auto"
-                domain={[0, capacidadeMaxima || "auto"]}
-                label={{
-                  value: "Volume (Hm³)",
-                  angle: -90,
-                  position: "insideLeft",
-                  fill: "#6b7280",
-                }}
-              />
-
-              <YAxis
-                yAxisId="right"
-                orientation="right"
-                tick={{ fontSize: 12, fill: "#6b7280" }}
-                width={50}
-                domain={[0, 100]}
-                tickFormatter={(value) => `${value}%`}
-                label={{
-                  value: "Metas (%)",
-                  angle: 90,
-                  position: "insideRight",
-                  fill: "#6b7280",
-                }}
-              />
-
-              <Tooltip content={<CustomTooltip />} />
-              <Legend verticalAlign="top" height={36} />
-
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="volume"
-                stroke="var(--chart-1)"
-                strokeWidth={3}
-                dot={false}
-                name="Volume"
-              />
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey="meta1"
-                stroke="var(--chart-2)"
-                strokeWidth={2}
-                strokeDasharray="4 4"
-                dot={false}
-                name="Meta 1"
-              />
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey="meta2"
-                stroke="var(--chart-3)"
-                strokeWidth={2}
-                strokeDasharray="4 4"
-                dot={false}
-                name="Meta 2"
-              />
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey="meta3"
-                stroke="var(--chart-4)"
-                strokeWidth={2}
-                strokeDasharray="4 4"
-                dot={false}
-                name="Meta 3"
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-        <details className="group text-sm">
-          <summary className="flex items-center gap-2 cursor-pointer text-muted-foreground hover:text-foreground transition-colors list-none [&::-webkit-details-marker]:hidden">
-            <Info className="h-4 w-4" />
-            <span className="font-medium">Entenda as Metas</span>
-            <svg
-              className="ml-auto h-4 w-4 transition-transform group-open:rotate-180"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </summary>
-          <div className="mt-3 space-y-2 text-muted-foreground">
-            <p className="leading-relaxed">
-              As linhas tracejadas representam o planejamento de volume para o
-              reservatório:
-            </p>
-            <ul className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-              <li className="flex items-start gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#991b1b] mt-1 shrink-0" />
-                <span>
-                  <strong>Meta 1 (Crítico):</strong> Nível de escassez severa;
-                  requer medidas de contingenciamento.
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#b45309] mt-1 shrink-0" />
-                <span>
-                  <strong>Meta 2 (Atenção):</strong> Limite de alerta; pode
-                  indicar necessidade de restrição parcial.
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#ca8a04] mt-1 shrink-0" />
-                <span>
-                  <strong>Meta 3 (Operação):</strong>
-                  Volume ideal para garantir o pleno atendimento às demandas.
-                </span>
-              </li>
-            </ul>
+    <SectionCard
+      id="graf-titulo"
+      title="Volume comparado com as metas"
+      description="Volume armazenado (hm³) e metas do Plano de Seca ao longo do tempo."
+      actions={
+        <SegmentedControl label="Período do gráfico" options={PERIODS} value={period} onChange={setPeriod} />
+      }
+    >
+      {chartData.length < 2 ? (
+        <EmptyState
+          title="Sem dados de volume"
+          description="Ainda não há registros suficientes no período para desenhar o gráfico."
+        />
+      ) : (
+        <ChartFigure
+          ariaLabel={ariaLabel}
+          legend={SERIES.map((s) => ({
+            label: s.label,
+            swatch: (
+              <svg width="28" height="10">
+                <line x1="0" y1="5" x2="28" y2="5" stroke={s.color} strokeWidth={s.width} strokeDasharray={s.dash} />
+              </svg>
+            ),
+          }))}
+          caption={`Registros de ${monthYear(first.Data)} a ${monthYear(last.Data)}. Metas convertidas de % da capacidade para hm³.`}
+        >
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer>
+              <LineChart data={chartData} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
+                <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
+                <XAxis
+                  dataKey="Data"
+                  tickFormatter={(v: string) => v.slice(0, 4)}
+                  minTickGap={48}
+                  tick={{ fontSize: 12, fill: "var(--label)" }}
+                  axisLine={{ stroke: "var(--input)" }}
+                  tickLine={false}
+                />
+                <YAxis
+                  domain={[0, capacidadeMaxima ? Math.ceil(capacidadeMaxima) : "auto"]}
+                  tick={{ fontSize: 12, fill: "var(--label)" }}
+                  tickFormatter={(v: number) => formatNumber(v, 0)}
+                  axisLine={false}
+                  tickLine={false}
+                  width={48}
+                />
+                <Tooltip
+                  formatter={(value: number, name: string) => [`${formatNumber(value)} hm³`, name]}
+                  labelFormatter={(label: string) => label.split("-").reverse().join("/")}
+                  contentStyle={{
+                    borderRadius: 10,
+                    border: "1px solid var(--border)",
+                    fontSize: 13,
+                  }}
+                />
+                {SERIES.map((s) => (
+                  <Line
+                    key={s.key}
+                    dataKey={s.key}
+                    name={s.label}
+                    type="monotone"
+                    stroke={s.color}
+                    strokeWidth={s.width}
+                    strokeDasharray={s.dash}
+                    dot={false}
+                    connectNulls
+                    isAnimationActive={!reduceMotion}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
           </div>
-        </details>
-      </div>
-    </section>
+        </ChartFigure>
+      )}
+      <details className="group border-t border-border pt-3.5">
+        <summary className="flex min-h-8 cursor-pointer list-none items-center gap-2 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+          <Info aria-hidden="true" className="size-4 text-label" />
+          Entenda as metas
+          <ChevronDown aria-hidden="true" className="ml-auto size-4 transition-transform group-open:rotate-180" />
+        </summary>
+        <p className="m-0 mt-3 text-sm leading-relaxed text-muted-foreground">
+          As metas são os volumes de referência (em % da capacidade) definidos no Plano de Seca para cada mês.
+          Quando o volume fica abaixo de uma meta, o reservatório muda de estado e novas medidas passam a valer.
+        </p>
+      </details>
+    </SectionCard>
   );
 }
+

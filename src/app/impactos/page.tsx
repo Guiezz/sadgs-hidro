@@ -1,191 +1,161 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useReservoir } from "@/context/ReservoirContext";
-import { config } from "@/config";
-
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Loader2 } from "lucide-react";
-import { IdentificationData } from "@/lib/types";
-import { EmptyReservoirState } from "@/components/dashboard/EmptyReservoirState";
 import Image from "next/image";
-import Link from "next/link";
+import {
+  ChartColumn,
+  Droplet,
+  FileText,
+  ImageIcon,
+  Leaf,
+  type LucideIcon,
+  Text,
+  Users,
+} from "lucide-react";
+import { useReservoir } from "@/context/ReservoirContext";
+import { splitList } from "@/lib/text";
+import { cn } from "@/lib/utils";
+import { PageHeader } from "@/components/app/PageHeader";
+import { ExternalLink } from "@/components/app/ExternalLink";
+import { EmptyReservoirState } from "@/components/dashboard/EmptyReservoirState";
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+
+const FORMULARIO_URL = "https://cepas.ufc.br/pt_br/avaliacao-de-impacto-das-secas/";
+
+const DIMENSOES: { title: string; icon: LucideIcon; cls: string }[] = [
+  { title: "Provisão de água", icon: Droplet, cls: "bg-water-soft text-water" },
+  { title: "Impactos econômicos", icon: ChartColumn, cls: "bg-accent text-link" },
+  { title: "Desafios sociais", icon: Users, cls: "bg-muted text-muted-foreground" },
+  { title: "Consequências ambientais", icon: Leaf, cls: "bg-estado-normal-bg text-estado-normal-text" },
+];
+
+const ANEXOS: { label: string; icon: LucideIcon }[] = [
+  { label: "Fotografias", icon: ImageIcon },
+  { label: "Relatos em texto", icon: Text },
+  { label: "Documentos", icon: FileText },
+];
 
 export default function ImpactosPage() {
-  const { selectedReservoir } = useReservoir();
+  const { selectedReservoir: reservoir } = useReservoir();
 
-  const [identificationData, setIdentificationData] =
-    useState<IdentificationData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Se não houver reservatório, paramos o loading para exibir o EmptyState
-    if (!selectedReservoir) {
-      setIsLoading(false);
-      return;
-    }
-
-    const getIdentificationData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(
-          `${config.apiBaseUrl}/reservatorios/${selectedReservoir.id}/identification`,
-          { cache: "no-store" },
-        );
-        if (!res.ok) throw new Error("Falha ao buscar dados de identificação");
-
-        const data = await res.json();
-        setIdentificationData(data);
-      } catch (err) {
-        console.error(err);
-        setError(
-          err instanceof Error ? err.message : "Ocorreu um erro desconhecido.",
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    getIdentificationData();
-  }, [selectedReservoir]);
-
-  // 1. ESTADO: NADA SELECIONADO
-  if (!selectedReservoir) {
+  if (!reservoir) {
     return (
       <EmptyReservoirState
-        title="Impactos da Seca Indisponíveis"
-        description="Por favor, selecione um hidrossistema no topo da página para visualizar o contexto local e acessar o formulário de percepção de impactos."
+        title="Impactos da seca indisponíveis"
+        description="Escolha um hidrossistema no topo da página para ver o contexto local e acessar o formulário de percepção de impactos."
       />
     );
   }
 
-  // 2. ESTADO: CARREGANDO
-  if (isLoading) {
-    return (
-      <main className="flex flex-1 items-center justify-center">
-        <div className="flex flex-col items-center gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          <p className="text-muted-foreground">
-            Carregando dados de impacto...
-          </p>
-        </div>
-      </main>
-    );
-  }
-
-  // 3. ESTADO: ERRO
-  if (error) {
-    return (
-      <main className="flex flex-1 items-center justify-center p-4">
-        <div className="text-center p-6 bg-card border rounded-xl shadow-sm">
-          <h1 className="text-2xl font-semibold text-destructive mb-2">
-            Erro ao carregar os dados.
-          </h1>
-          <p className="text-muted-foreground">{error}</p>
-        </div>
-      </main>
-    );
-  }
-
-  const nomeReservatorio = identificationData?.nome || "O Hidrossistema";
-  const nomeMunicipio = identificationData?.municipio || "na região";
+  const municipios = new Intl.ListFormat("pt-BR", { type: "conjunction" }).format(
+    splitList(reservoir.municipio).map((m) => m.replace(/[.;]+$/, "")),
+  );
 
   return (
-    <main className="flex flex-1 flex-col gap-8 p-4 lg:p-8 bg-background">
-      <div className="space-y-1">
-        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-          Participação Social
-        </p>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-          Impactos da Seca
-        </h1>
-      </div>
+    <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-6 px-4 pt-9 pb-20 md:px-10">
+      <PageHeader eyebrow="Participação social" title="Impactos da Seca" />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        {/* Coluna da Esquerda: Textos e Botão */}
-        <div className="flex flex-col gap-6">
-          <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-border/40">
-              <h3 className="text-sm font-semibold">Formulário de Percepção de Impactos</h3>
-            </div>
-            <div className="p-4 space-y-4 text-muted-foreground leading-relaxed">
-              <p>
-                Este formulário tem o objetivo de obter informações sobre a
-                percepção pessoal do impacto das secas no cotidiano individual,
-                familiar e no trabalho dos participantes.
-              </p>
-              <p>
-                A sua participação é de grande importância para podermos
-                identificar e avaliar os impactos das secas em suas mais
-                diversas dimensões.
-              </p>
-              <p className="font-semibold text-foreground">
-                Conte a sua história adicionando fotográficas, textos e
-                documentos que apresentem evidências dos impactos relatados.
-                Esses registros serão fundamentais para a descrição adequada do
-                impacto das secas.
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-primary/5 border border-primary/20 rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-primary/10">
-              <h3 className="text-sm font-semibold">O Contexto Local</h3>
-            </div>
-            <div className="p-4 space-y-4 text-muted-foreground leading-relaxed">
-              <p>
-                O{" "}
-                <span className="font-bold text-foreground">
-                  {nomeReservatorio}
-                </span>
-                , no município de{" "}
-                <span className="font-bold text-foreground">
-                  {nomeMunicipio}
-                </span>{" "}
-                (CE), enfrenta desafios significativos durante períodos de seca
-                prolongada, com impactos que afetam a provisão de água, a
-                economia, o bem-estar social e o meio ambiente.
-              </p>
-              <p>
-                A vulnerabilidade do sistema reflete a necessidade de políticas
-                integradas que promovam a convivência sustentável com a seca,
-                garantindo segurança hídrica e qualidade de vida para a
-                população.
-              </p>
-            </div>
-          </div>
+      <section
+        aria-labelledby="form-titulo"
+        className="flex flex-wrap items-center gap-8 rounded-3xl bg-secondary p-6 text-on-dark md:p-9"
+      >
+        <div className="flex min-w-0 flex-[999_1_420px] flex-col gap-3.5">
+          <span className="text-[13px] font-bold uppercase tracking-[0.08em] text-sidebar-muted">
+            Formulário de percepção de impactos
+          </span>
+          <h2
+            id="form-titulo"
+            className="m-0 font-display text-[28px] leading-tight font-bold text-balance text-white md:text-[34px]"
+          >
+            Conte como a seca afeta o seu dia a dia
+          </h2>
+          <p className="m-0 max-w-[62ch] text-base leading-[1.65] text-sidebar-foreground">
+            O formulário reúne a percepção pessoal do impacto das secas no cotidiano individual, familiar e no
+            trabalho. Sua participação ajuda a identificar e avaliar esses impactos em suas diversas dimensões.
+          </p>
         </div>
+        <div className="flex flex-[1_1_300px] flex-col gap-3.5 rounded-2xl border border-white/15 bg-white/5 p-[22px]">
+          <p className="m-0 text-sm font-semibold text-white">Você pode anexar</p>
+          <ul className="m-0 flex list-none flex-col gap-2.5 p-0 text-sm text-sidebar-foreground">
+            {ANEXOS.map(({ label, icon: Icon }) => (
+              <li key={label} className="flex items-center gap-2.5">
+                <Icon aria-hidden="true" className="size-[18px] text-primary" />
+                {label}
+              </li>
+            ))}
+          </ul>
+          <ExternalLink
+            href={FORMULARIO_URL}
+            className="h-12 justify-center rounded-[10px] bg-primary text-[15px] font-bold text-primary-foreground no-underline hover:bg-primary-hover hover:text-primary-foreground"
+          >
+            Responder ao formulário
+          </ExternalLink>
+        </div>
+      </section>
 
-        {/* Coluna da Direita: Gráfico e Botão */}
-        <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
-          <div className="p-4 border-b border-border/40">
-            <h3 className="text-sm font-semibold">Principais Impactos</h3>
-          </div>
-          <div className="p-4 flex flex-col items-center gap-6">
-            <div className="relative w-full max-w-md aspect-square ring-1 ring-border/40 rounded-lg overflow-hidden">
-              <Image
-                src="/infografico/infografico.png"
-                alt="Infográfico dos Principais Impactos"
-                fill
-                style={{ objectFit: "contain" }}
-                sizes="(max-width: 768px) 100vw, 50vw"
-                priority
-              />
-            </div>
-            <Button size="lg" asChild className="w-full max-w-xs shadow-md">
-              <Link
-                href="https://cepas.ufc.br/pt_br/avaliacao-de-impacto-das-secas/"
-                target="_blank"
+      <section aria-labelledby="dim-titulo" className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 id="dim-titulo" className="m-0 text-lg font-bold">
+            Principais impactos
+          </h2>
+          <Dialog>
+            <DialogTrigger asChild>
+              <button
+                type="button"
+                className="inline-flex h-11 items-center gap-2 rounded-[10px] border border-input bg-card px-4 text-sm font-semibold hover:bg-muted"
               >
-                Acesse o formulário aqui
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
+                <ImageIcon aria-hidden="true" className="size-4" />
+                Ver infográfico
+              </button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogTitle className="m-0 pr-12 text-lg font-bold">Infográfico dos principais impactos</DialogTitle>
+              <DialogDescription className="m-0 text-sm text-muted-foreground">
+                Provisão de água, impactos econômicos, desafios sociais e consequências ambientais da seca.
+              </DialogDescription>
+              <div className="relative aspect-square w-full max-h-[70vh]">
+                <Image
+                  src="/infografico/infografico.png"
+                  alt="Infográfico com as quatro dimensões de impacto da seca: provisão de água, impactos econômicos, desafios sociais e consequências ambientais"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 1024px"
+                  className="object-contain"
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
-      </div>
-    </main>
+        <ul className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-3.5 p-0">
+          {DIMENSOES.map(({ title, icon: Icon, cls }) => (
+            <li key={title} className="flex flex-col gap-3.5 rounded-2xl border border-border bg-card p-[22px]">
+              <span aria-hidden="true" className={cn("flex size-12 items-center justify-center rounded-xl", cls)}>
+                <Icon className="size-6" />
+              </span>
+              <h3 className="m-0 text-[17px] font-bold">{title}</h3>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section
+        aria-labelledby="ctx-titulo"
+        className="flex flex-wrap gap-x-10 gap-y-6 rounded-[20px] border border-border bg-card p-6 md:p-7"
+      >
+        <h2 id="ctx-titulo" className="m-0 flex-[1_1_220px] font-display text-[26px] font-bold">
+          O contexto local
+        </h2>
+        <div className="flex min-w-0 flex-[999_1_480px] flex-col gap-3.5">
+          <p className="m-0 max-w-[68ch] text-base leading-[1.7]">
+            O <strong>{reservoir.nome}</strong>
+            {municipios ? `, que atende ${municipios} (CE),` : ""} enfrenta desafios significativos durante
+            períodos de seca prolongada, com impactos sobre a provisão de água, a economia, o bem-estar social e o
+            meio ambiente.
+          </p>
+          <p className="m-0 max-w-[68ch] text-base leading-[1.7]">
+            A vulnerabilidade do sistema reflete a necessidade de políticas integradas que promovam a convivência
+            sustentável com a seca, garantindo segurança hídrica e qualidade de vida para a população.
+          </p>
+        </div>
+      </section>
+    </div>
   );
 }
