@@ -1,78 +1,52 @@
-"use client";
-
-import { useState } from "react";
 import type { PlanoAcao } from "@/lib/types";
 import { splitActions } from "@/lib/text";
 import { cn } from "@/lib/utils";
-
-const VISIBLE = 5;
+import { ExpandableList } from "@/components/app/ExpandableList";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 // Situação vem por medida (registro do plano), não por ação.
 function situacaoTone(situacao: string) {
   const s = situacao.toLowerCase();
-  if (s.startsWith("conclu")) return { label: "Concluída", cls: "bg-estado-normal-bg text-estado-normal-text", pct: 100 };
-  if (s.includes("andamento")) return { label: "Em andamento", cls: "bg-water-soft text-water", pct: 50 };
-  return { label: "Não iniciada", cls: "bg-muted text-muted-foreground", pct: 0 };
+  if (s.startsWith("conclu")) return { label: "Concluída", cls: "bg-estado-normal-bg text-estado-normal-text" };
+  if (s.includes("andamento")) return { label: "Em andamento", cls: "bg-water-soft text-water" };
+  return { label: "Não iniciada", cls: "bg-muted text-muted-foreground" };
 }
 
-function Measure({ plano, index }: { plano: PlanoAcao; index: number }) {
-  const [open, setOpen] = useState(false);
-  const acoes = splitActions(plano.acoes);
-  const visible = open ? acoes : acoes.slice(0, VISIBLE);
-  const hidden = acoes.length - VISIBLE;
-  const tone = situacaoTone(plano.situacao);
-  const listId = `medida-${plano.id}-acoes`;
-
-  return (
-    <li className="flex flex-col gap-3.5 rounded-2xl border border-border bg-card px-[22px] py-5">
-      <div className="flex items-center justify-between gap-2.5">
-        <span className="flex items-center gap-2.5">
-          <span
-            aria-hidden="true"
-            className="flex size-8 items-center justify-center rounded-lg bg-accent font-bold text-link-hover"
-          >
-            {index + 1}
-          </span>
-          <h3 className="m-0 text-base font-bold">Medida {index + 1}</h3>
-        </span>
-        <span className="text-xs font-semibold text-label">
-          {acoes.length} {acoes.length === 1 ? "ação" : "ações"}
-        </span>
-      </div>
-      <ul id={listId} className="m-0 flex flex-col gap-2 pl-[18px] text-sm leading-normal">
-        {visible.map((a, i) => (
-          <li key={i}>{a}</li>
-        ))}
-      </ul>
-      {hidden > 0 && (
-        <button
-          type="button"
-          aria-expanded={open}
-          aria-controls={listId}
-          onClick={() => setOpen((v) => !v)}
-          className="-ml-3 h-9 self-start rounded-lg px-3 text-sm font-semibold text-link hover:bg-muted"
-        >
-          {open ? "Ver menos" : `Ver mais ${hidden} ${hidden === 1 ? "ação" : "ações"}`}
-        </button>
-      )}
-      <div className="flex items-center justify-between gap-2 border-t border-muted pt-3 text-[13px] text-muted-foreground">
-        <span>
-          Situação: <span className={cn("rounded-full px-2 py-0.5 font-semibold", tone.cls)}>{tone.label}</span>
-        </span>
-        <span aria-hidden="true" className="block h-1.5 flex-[0_0_120px] overflow-hidden rounded-full bg-muted">
-          <span className="block h-full rounded-full bg-water" style={{ width: `${tone.pct}%` }} />
-        </span>
-      </div>
-    </li>
-  );
-}
+const headClass = "text-xs font-semibold uppercase tracking-[0.05em] text-label";
+const cellClass = "align-top whitespace-normal py-4";
 
 export function MeasureList({ planos }: { planos: PlanoAcao[] }) {
   return (
-    <ol className="m-0 flex list-none flex-col gap-3.5 p-0">
-      {planos.map((p, i) => (
-        <Measure key={p.id} plano={p} index={i} />
-      ))}
-    </ol>
+    <div className="overflow-hidden rounded-2xl border border-border bg-card">
+      <Table aria-label="Medidas recomendadas" className="min-w-[520px] table-fixed">
+        <TableHeader className="bg-muted">
+          <TableRow className="hover:bg-transparent">
+            <TableHead className={`w-14 ${headClass}`}>Nº</TableHead>
+            <TableHead className={headClass}>Ações</TableHead>
+            <TableHead className={`w-40 ${headClass}`}>Situação</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {planos.map((p, i) => {
+            const tone = situacaoTone(p.situacao);
+            return (
+              <TableRow key={p.id} className="even:bg-muted/40">
+                <TableCell className={cn(cellClass, "font-bold")}>{i + 1}</TableCell>
+                <TableCell className={cellClass}>
+                  <ExpandableList
+                    id={`medida-${p.id}-acoes`}
+                    items={splitActions(p.acoes)}
+                    noun={["ação", "ações"]}
+                  />
+                </TableCell>
+                <TableCell className={cellClass}>
+                  <span className={cn("rounded-full px-2 py-0.5 text-xs font-semibold", tone.cls)}>{tone.label}</span>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
