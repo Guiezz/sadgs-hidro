@@ -93,9 +93,9 @@ export function HomeHero() {
             {stats.map((s) => (
               <div
                 key={s.label}
-                className="flex flex-col-reverse gap-1 rounded-[14px] border border-border bg-card px-4 py-3.5"
+                className="flex flex-col-reverse justify-end gap-1 rounded-[14px] border border-border bg-card px-4 py-3.5"
               >
-                <dt className="text-xs font-medium text-label">{s.label}</dt>
+                <dt className="text-xs font-medium leading-tight text-label">{s.label}</dt>
                 <dd className="m-0 font-display text-[30px] font-bold leading-none tabular-nums">{s.value}</dd>
               </div>
             ))}
