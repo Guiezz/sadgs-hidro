@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { MotionConfig } from "framer-motion";
 import { AuthProvider } from "@/context/AuthContext";
 import { ReservoirProvider } from "@/context/ReservoirContext";
+import { BackToTop } from "./BackToTop";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { SkipLink } from "./SkipLink";
@@ -49,6 +50,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   {children}
                 </main>
               </div>
+              <BackToTop />
             </div>
           )}
         </MotionConfig>
