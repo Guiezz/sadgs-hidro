@@ -18,8 +18,10 @@ export function splitList(raw: string | null | undefined): string[] {
   for (const ch of raw) {
     if (ch === "(") depth++;
     if (ch === ")") depth = Math.max(0, depth - 1);
-    const isSeparator = ch === ";" || ch === "\n" || (ch === "," && depth === 0);
-    if (isSeparator) {
+    const isSeparator = ch === ";" || ((ch === "\n" || ch === ",") && depth === 0);
+    if (ch === "\n" && depth > 0) {
+      current += " ";
+    } else if (isSeparator) {
       items.push(current);
       current = "";
     } else {

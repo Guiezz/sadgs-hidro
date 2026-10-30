@@ -30,3 +30,9 @@ it("splitActions: blocos separados por linha em branco juntam as quebras interna
   ).toEqual(["Poços para irrigação em locais estratégicos", "Construir adutora ligando interligando o Açude, o Mamoeiro"]));
 
 it("splitActions vazio", () => expect(splitActions("")).toEqual([]));
+
+it("splitList: quebra de linha dentro de parênteses vira espaço", () =>
+  expect(splitList("Maranguape;\nMaracanaú (Distrito\nIndustrial).")).toEqual([
+    "Maranguape",
+    "Maracanaú (Distrito Industrial).",
+  ]));
