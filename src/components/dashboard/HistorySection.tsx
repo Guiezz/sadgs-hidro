@@ -4,6 +4,7 @@ import { Download } from "lucide-react";
 import type { HistoryEntry } from "@/lib/types";
 import { dailyDiffs, historyToCsv } from "@/lib/monitoring";
 import { formatNumber, formatSigned } from "@/lib/format";
+import { slugify } from "@/lib/text";
 import { SectionCard } from "@/components/app/SectionCard";
 import { StateBadge } from "@/components/app/StateBadge";
 import { EmptyState } from "@/components/app/EmptyState";
@@ -13,14 +14,6 @@ interface HistorySectionProps {
   reservatorio: string;
   recentCount?: number;
 }
-
-const slug = (s: string) =>
-  s
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
 
 export function HistorySection({ history, reservatorio, recentCount = 8 }: HistorySectionProps) {
   const diffs = dailyDiffs(history);
@@ -34,7 +27,7 @@ export function HistorySection({ history, reservatorio, recentCount = 8 }: Histo
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `historico-${slug(reservatorio)}.csv`;
+    a.download = `historico-${slugify(reservatorio)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };

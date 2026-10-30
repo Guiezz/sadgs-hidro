@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { normalizeText, splitActions, splitList } from "./text";
+import { normalizeText, slugify, splitActions, splitList } from "./text";
 
 it("splitList separa por ; , e quebra de linha, preservando parênteses", () =>
   expect(splitList("Poder Público (Mun., Est., Fed.), CAGECE; COGERH\nSDA")).toEqual([
@@ -36,3 +36,9 @@ it("splitList: quebra de linha dentro de parênteses vira espaço", () =>
     "Maranguape",
     "Maracanaú (Distrito Industrial).",
   ]));
+
+it("slugify gera âncoras estáveis", () => {
+  expect(slugify("Créditos Institucionais")).toBe("creditos-institucionais");
+  expect(slugify("COMISSÃO GESTORA DO AÇUDE ACARAPE DO MEIO")).toBe("comissao-gestora-do-acude-acarape-do-meio");
+  expect(slugify("  Equipe – CEPAS/UFC  ")).toBe("equipe-cepas-ufc");
+});

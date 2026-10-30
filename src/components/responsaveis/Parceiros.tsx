@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export function Parceiros() {
   return (
-    <div className="w-full space-y-20 py-10">
+    <div className="w-full space-y-10 py-4">
       {/* Linha 01: Parceiros Acadêmicos e Técnicos (Cientista chefe, Cepas, UFC) */}
       <div className="flex flex-wrap justify-center items-center gap-16 md:gap-28">
         <div className="flex items-center justify-center">

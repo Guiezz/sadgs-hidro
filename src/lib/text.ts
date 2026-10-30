@@ -42,3 +42,10 @@ export function splitActions(raw: string | null | undefined): string[] {
     : text.split("\n");
   return items.map((s) => s.trim()).filter(Boolean);
 }
+
+// "Créditos Institucionais" → "creditos-institucionais" (âncoras e nomes de arquivo).
+export function slugify(s: string): string {
+  return normalizeText(s)
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
