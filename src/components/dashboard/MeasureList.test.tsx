@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import type { PlanoAcao } from "@/lib/types";
 import { MeasureList } from "./MeasureList";
@@ -53,9 +54,24 @@ describe("MeasureList", () => {
     expect(screen.queryAllByRole("listitem")).toHaveLength(0);
   });
 
-  it("células vazias viram travessão e há aviso sobre o conjunto", () => {
+  it("células vazias viram travessão", () => {
     render(<MeasureList planos={[plano({})]} />);
     expect(screen.getAllByText("—")).toHaveLength(2);
-    expect(screen.getByText(/tipo de impacto/)).toBeInTheDocument();
+  });
+});
+
+describe("MeasureList paginada", () => {
+  const muitos = Array.from({ length: 12 }, (_, i) => plano({ id: i + 1 }));
+
+  it("mostra 10 medidas por página e continua a numeração", async () => {
+    render(<MeasureList planos={muitos} />);
+    expect(screen.getAllByRole("rowheader")).toHaveLength(10);
+    await userEvent.click(screen.getByRole("button", { name: "Página 2" }));
+    expect(screen.getAllByRole("rowheader").map((c) => c.textContent)).toEqual(["11", "12"]);
+  });
+
+  it("até 10 medidas não tem paginação", () => {
+    render(<MeasureList planos={muitos.slice(0, 10)} />);
+    expect(screen.queryByRole("navigation", { name: "Paginação" })).toBeNull();
   });
 });

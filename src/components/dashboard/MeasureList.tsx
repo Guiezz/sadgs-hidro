@@ -1,7 +1,13 @@
+"use client";
+
+import { useRef, useState } from "react";
 import type { PlanoAcao } from "@/lib/types";
 import { cellText } from "@/lib/text";
 import { cn } from "@/lib/utils";
+import { PageNav } from "@/components/app/PageNav";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+const PER_PAGE = 10;
 
 // Situação vem por medida (registro do plano), não por ação.
 function situacaoTone(situacao: string) {
@@ -17,12 +23,21 @@ const cellClass = "align-top whitespace-normal py-4";
 const rowHeadClass = `${cellClass} h-auto text-foreground`;
 
 export function MeasureList({ planos }: { planos: PlanoAcao[] }) {
+  const [page, setPage] = useState(1);
+  const topo = useRef<HTMLDivElement>(null);
+  const pages = Math.max(1, Math.ceil(planos.length / PER_PAGE));
+  const atual = Math.min(page, pages);
+  const inicio = (atual - 1) * PER_PAGE;
+
+  const mudarPagina = (n: number) => {
+    setPage(n);
+    // Quem troca de página lá embaixo volta ao começo da tabela.
+    if (topo.current && topo.current.getBoundingClientRect().top < 0) topo.current.scrollIntoView?.();
+  };
+
   return (
-    <div className="flex flex-col gap-2.5">
-      <p className="m-0 text-sm text-muted-foreground">
-        Cada medida reúne as ações previstas para um tipo de impacto; a situação vale para a medida inteira.
-      </p>
-      <div className="overflow-hidden rounded-2xl border border-border bg-card">
+    <div className="flex flex-col gap-3">
+      <div ref={topo} className="scroll-mt-4 overflow-hidden rounded-2xl border border-border bg-card">
         <Table aria-label="Medidas recomendadas" className="min-w-[640px] table-fixed">
           <TableHeader className="bg-muted">
             <TableRow className="hover:bg-transparent">
@@ -33,11 +48,11 @@ export function MeasureList({ planos }: { planos: PlanoAcao[] }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {planos.map((p, i) => {
+            {planos.slice(inicio, inicio + PER_PAGE).map((p, i) => {
               const tone = situacaoTone(p.situacao);
               return (
                 <TableRow key={p.id} className="even:bg-muted/40">
-                  <TableHead scope="row" className={cn(rowHeadClass, "font-bold")}>{i + 1}</TableHead>
+                  <TableHead scope="row" className={cn(rowHeadClass, "font-bold")}>{inicio + i + 1}</TableHead>
                   <TableCell className={`${cellClass} texto-corrido`}>{cellText(p.acoes) || "—"}</TableCell>
                   <TableCell className={`${cellClass} texto-corrido`}>{cellText(p.descricao_acao) || "—"}</TableCell>
                   <TableCell className={cellClass}>
@@ -49,6 +64,7 @@ export function MeasureList({ planos }: { planos: PlanoAcao[] }) {
           </TableBody>
         </Table>
       </div>
+      <PageNav page={atual} pages={pages} onChange={mudarPagina} />
     </div>
   );
 }

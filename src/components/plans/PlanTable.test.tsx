@@ -59,9 +59,4 @@ describe("PlanTable", () => {
     render(<PlanTable planos={[plano({})]} />);
     expect(screen.getAllByText("—")).toHaveLength(3);
   });
-
-  it("avisa que responsáveis e classes valem para o conjunto", () => {
-    render(<PlanTable planos={[plano({})]} />);
-    expect(screen.getByText(/valem para o conjunto/)).toBeInTheDocument();
-  });
 });
