@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { PageHeader } from "@/components/app/PageHeader";
 import { useAuth } from "@/context/AuthContext";
 import { useReservoir } from "@/context/ReservoirContext";
 import { api } from "@/lib/api";
@@ -171,21 +172,17 @@ export default function AdminPage() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-4 lg:p-8 bg-background">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2 text-primary">
-          <ShieldAlert className="h-8 w-8" />
-          Gestão de Implementação
-        </h1>
-        <p className="text-muted-foreground">
-          Gestor logado:{" "}
-          <span className="font-semibold text-foreground">{user?.nome}</span> |
-          Reservatório:{" "}
-          <span className="font-semibold text-foreground">
-            {selectedReservoir?.nome || "Selecione um sistema"}
-          </span>
-        </p>
-      </div>
+    <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-6 px-4 pt-9 pb-20 md:px-10">
+      <PageHeader
+        eyebrow="Painel administrativo"
+        title="Gestão de implementação"
+        description={
+          <>
+            Gestor: <strong className="text-foreground">{user?.nome}</strong> · Reservatório:{" "}
+            <strong className="text-foreground">{selectedReservoir?.nome || "selecione um sistema"}</strong>
+          </>
+        }
+      />
 
       {!selectedReservoir ? (
         <Card className="border-dashed bg-muted/20">
@@ -201,7 +198,7 @@ export default function AdminPage() {
         </Card>
       ) : (
         <div className="grid gap-6">
-          <Card className="shadow-sm border-border/60 overflow-hidden">
+          <Card className="rounded-[20px] border-border overflow-hidden shadow-none">
             <CardHeader className="border-b bg-muted/10 pb-6">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
@@ -215,7 +212,7 @@ export default function AdminPage() {
                     <span className="text-muted-foreground text-[10px] uppercase font-bold">
                       Não iniciadas
                     </span>
-                    <span className="font-bold text-orange-500">
+                    <span className="font-bold text-link">
                       {notStarted.length}
                     </span>
                   </div>
@@ -233,7 +230,7 @@ export default function AdminPage() {
                     <span className="text-muted-foreground text-[10px] uppercase font-bold">
                       Concluídas
                     </span>
-                    <span className="font-bold text-green-600">
+                    <span className="font-bold text-estado-normal-text">
                       {completed.length}
                     </span>
                   </div>
@@ -316,11 +313,11 @@ export default function AdminPage() {
                     {user?.role === "admin_cogerh" && (
                       <TabsContent value="backfill" className="m-0">
                         <div className="space-y-6">
-                          <div className="p-6 rounded-lg border border-dashed border-amber-300 bg-amber-50/50">
-                            <h3 className="text-sm font-semibold text-amber-800 mb-2">
+                          <div className="p-6 rounded-lg border border-dashed border-accent-border bg-accent">
+                            <h3 className="text-sm font-semibold text-link-hover mb-2">
                               Backfill de Dados Históricos FUNCEME
                             </h3>
-                            <p className="text-sm text-amber-700/80 mb-4">
+                            <p className="text-sm text-muted-foreground mb-4">
                               Busca dados históricos de volume desde a data
                               informada e insere no banco, evitando duplicatas.
                               Requer permissão de administrador.
@@ -463,7 +460,7 @@ function ActionTable({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-md border bg-card overflow-hidden">
+      <div className="rounded-2xl border border-border bg-card overflow-hidden">
         <Table className="w-full table-fixed">
           <TableHeader className="bg-muted/30">
             <TableRow>

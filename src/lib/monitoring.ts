@@ -1,0 +1,107 @@
+// src/lib/monitoring.ts
+// Cálculos da tela de Monitoramento sobre /volume-chart e /history.
+import type { ChartDataPoint, HistoryEntry } from "./types";
+
+export type ChartPeriod = "1a" | "5a" | "10a" | "tudo";
+
+const PERIOD_YEARS: Record<Exclude<ChartPeriod, "tudo">, number> = { "1a": 1, "5a": 5, "10a": 10 };
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const round = (value: number, decimals: number) => {
+  const f = 10 ** decimals;
+  return Math.round(value * f) / f;
+};
+
+// "aaaa-mm-dd" (volume-chart) → comparável como texto; recorte relativo ao último ponto.
+export function filterByPeriod(points: ChartDataPoint[], period: ChartPeriod): ChartDataPoint[] {
+  if (period === "tudo" || points.length === 0) return points;
+  const last = points[points.length - 1].Data;
+  const [y, m, d] = last.split("-");
+  const cutoff = `${Number(y) - PERIOD_YEARS[period]}-${m}-${d}`;
+  return points.filter((p) => p.Data >= cutoff);
+}
+
+// "dd/mm/aaaa" (history) → Date em UTC, para contar dias sem fuso.
+function parseBr(date: string): number {
+  const [d, m, y] = date.split("/").map(Number);
+  return Date.UTC(y, m - 1, d);
+}
+
+export function variation7d(
+  history: HistoryEntry[],
+): { deltaHm3: number; perDay: number; days: number } | null {
+  if (history.length < 2) return null;
+  const last = history[history.length - 1];
+  const lastTime = parseBr(last.Data);
+  const target = lastTime - 7 * DAY_MS;
+
+  let base = history[0];
+  for (let i = history.length - 2; i >= 0; i--) {
+    if (parseBr(history[i].Data) <= target) {
+      base = history[i];
+      break;
+    }
+  }
+  const days = Math.round((lastTime - parseBr(base.Data)) / DAY_MS);
+  if (days <= 0) return null;
+  const delta = last["Volume (hm3)"] - base["Volume (hm3)"];
+  return { deltaHm3: round(delta, 2), perDay: round(delta / days, 2), days };
+}
+
+export function dailyDiffs(history: HistoryEntry[]): (number | null)[] {
+  return history.map((entry, i) =>
+    i === 0 ? null : round(entry["Volume (hm3)"] - history[i - 1]["Volume (hm3)"], 2),
+  );
+}
+
+function csvField(value: string): string {
+  return /[;"\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+}
+
+const csvNumber = (n: number) => n.toFixed(2).replace(".", ",");
+
+// CSV para Excel pt-BR: BOM UTF-8, ";" e vírgula decimal.
+export function historyToCsv(history: HistoryEntry[]): string {
+  const diffs = dailyDiffs(history);
+  const lines = ["Data;Estado;Volume (hm³);Variação"];
+  history.forEach((entry, i) => {
+    lines.push(
+      [
+        csvField(entry.Data),
+        csvField(entry["Estado de Seca"]),
+        csvNumber(entry["Volume (hm3)"]),
+        diffs[i] === null ? "" : csvNumber(diffs[i] as number),
+      ].join(";"),
+    );
+  });
+  return "﻿" + lines.join("\r\n") + "\r\n";
+}
+
+// --- Medidor do estado atual ---
+// A ordem de Meta 1/2/3 varia entre reservatórios (crescente no Trussu,
+// decrescente no Acarape); o medidor trabalha sempre com os limites ordenados.
+
+export function gaugeThresholds(metas: { meta1: number; meta2: number; meta3: number }): number[] | null {
+  const valores = [metas.meta1, metas.meta2, metas.meta3];
+  if (valores.every((v) => !v)) return null;
+  return valores.map((v) => round((v || 0) * 100, 1)).sort((a, b) => a - b);
+}
+
+const BANDAS = ["severa", "seca", "alerta", "normal"] as const;
+
+export function gaugeSegments(limites: number[]): { from: number; to: number; key: (typeof BANDAS)[number] }[] {
+  const pontos = [0, ...limites, 100];
+  return BANDAS.map((key, i) => ({ from: pontos[i], to: pontos[i + 1], key }));
+}
+
+// Distância (p.p.) até o limite que muda o estado: acima do maior limite, quanto
+// falta para cair do Normal; abaixo dele, quanto falta para subir de estado.
+export function distanceToNextLimit(
+  volumePct: number,
+  limites: number[],
+): { pp: number; direcao: "acima" | "abaixo"; estado: (typeof BANDAS)[number] } {
+  const topo = limites[limites.length - 1];
+  if (volumePct >= topo) return { pp: round(volumePct - topo, 1), direcao: "acima", estado: "normal" };
+  const i = limites.findIndex((l) => volumePct < l);
+  return { pp: round(limites[i] - volumePct, 1), direcao: "abaixo", estado: BANDAS[i + 1] };
+}

@@ -56,9 +56,9 @@ export function HistoricalCharts({ data }: HistoricalChartsProps) {
                     value: "Vazão (hm³)",
                     angle: -90,
                     position: "insideLeft",
-                    style: { fill: "#16a34a" },
+                    style: { fill: "var(--estado-normal-dot)" },
                   }}
-                  tick={{ fontSize: 12, fill: "#16a34a" }}
+                  tick={{ fontSize: 12, fill: "var(--estado-normal-dot)" }}
                 />
                 <Tooltip
                   labelFormatter={(label) => formatDate(label)}
@@ -71,14 +71,14 @@ export function HistoricalCharts({ data }: HistoricalChartsProps) {
                 <Bar
                   dataKey="afluencia_hm3"
                   name="Vazão"
-                  fill="#16a34a"
+                  fill="var(--estado-normal-dot)"
                   radius={[4, 4, 0, 0]}
                 />
                 {/* Brush para navegar no tempo */}
                 <Brush
                   dataKey="data"
                   height={30}
-                  stroke="#16a34a"
+                  stroke="var(--estado-normal-dot)"
                   tickFormatter={formatDate}
                 />
               </BarChart>
@@ -114,9 +114,9 @@ export function HistoricalCharts({ data }: HistoricalChartsProps) {
                     value: "Evaporação (hm³)",
                     angle: -90,
                     position: "insideLeft",
-                    style: { fill: "#ea580c" },
+                    style: { fill: "var(--estado-seca-dot)" },
                   }}
-                  tick={{ fontSize: 12, fill: "#ea580c" }}
+                  tick={{ fontSize: 12, fill: "var(--estado-seca-dot)" }}
                 />
                 <Tooltip
                   labelFormatter={(label) => formatDate(label)}
@@ -129,8 +129,8 @@ export function HistoricalCharts({ data }: HistoricalChartsProps) {
                   type="monotone"
                   dataKey="evaporacao_hm3"
                   name="Evaporação"
-                  fill="#ea580c"
-                  stroke="#c2410c"
+                  fill="var(--estado-seca-dot)"
+                  stroke="var(--estado-seca-text)"
                   fillOpacity={0.2}
                 />
               </AreaChart>

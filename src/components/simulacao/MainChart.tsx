@@ -52,9 +52,9 @@ export function MainChart({ data }: MainChartProps) {
                   value: "Volume (hm³)",
                   angle: -90,
                   position: "insideLeft",
-                  style: { fill: "#2563eb" },
+                  style: { fill: "var(--water)" },
                 }}
-                tick={{ fontSize: 12, fill: "#2563eb" }}
+                tick={{ fontSize: 12, fill: "var(--water)" }}
               />
               <YAxis
                 yAxisId="vazao"
@@ -63,9 +63,9 @@ export function MainChart({ data }: MainChartProps) {
                   value: "Afluência (hm³)",
                   angle: 90,
                   position: "insideRight",
-                  style: { fill: "#16a34a" },
+                  style: { fill: "var(--estado-normal-dot)" },
                 }}
-                tick={{ fontSize: 12, fill: "#16a34a" }}
+                tick={{ fontSize: 12, fill: "var(--estado-normal-dot)" }}
               />
 
               {/* Tooltip Atualizado */}
@@ -77,7 +77,7 @@ export function MainChart({ data }: MainChartProps) {
                 contentStyle={{
                   fontSize: "12px",
                   backgroundColor: "rgba(255, 255, 255, 0.95)",
-                  border: "1px solid #e2e8f0",
+                  border: "1px solid var(--border)",
                   borderRadius: "6px",
                   padding: "8px",
                 }}
@@ -90,8 +90,8 @@ export function MainChart({ data }: MainChartProps) {
                 type="monotone"
                 dataKey="volume_inicial_hm3"
                 name="Volume"
-                fill="#3b82f6"
-                stroke="#2563eb"
+                fill="var(--water-light)"
+                stroke="var(--water)"
                 fillOpacity={0.2}
               />
               <Line
@@ -99,7 +99,7 @@ export function MainChart({ data }: MainChartProps) {
                 type="monotone"
                 dataKey="afluencia_hm3"
                 name="Afluência"
-                stroke="#16a34a"
+                stroke="var(--estado-normal-dot)"
                 strokeWidth={2}
                 dot={false}
               />

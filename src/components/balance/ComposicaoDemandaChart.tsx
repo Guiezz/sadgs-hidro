@@ -1,76 +1,41 @@
-"use client";
+import type { ComposicaoDemanda } from "@/lib/types";
+import { groupTopN } from "@/lib/water";
+import { formatNumber } from "@/lib/format";
+import { SectionCard } from "@/components/app/SectionCard";
 
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
-import { ComposicaoDemanda } from "@/lib/types";
+// Cores na ordem das fatias (maior → menor); "Outros" fica com a última.
+const COLORS = ["var(--secondary)", "var(--link)", "var(--scarcity)", "var(--water)", "var(--water-light)", "var(--input)"];
 
-interface Props {
-  data: ComposicaoDemanda[];
-}
+export function ComposicaoDemandaChart({ data }: { data: ComposicaoDemanda[] }) {
+  const grupos = groupTopN(data.map((d) => ({ label: d.Uso, value: d["Vazão (L/s)"] })));
 
-const COLORS = [
-  "var(--chart-1)",
-  "var(--chart-2)",
-  "var(--chart-3)",
-  "var(--chart-4)",
-  "var(--chart-5)",
-];
-
-export function ComposicaoDemandaChart({ data }: Props) {
   return (
-    <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
-      <div className="p-4 border-b border-border/40">
-        <h3 className="text-sm font-semibold">Composição da Demanda</h3>
-        <p className="text-sm text-muted-foreground mt-1">
-          Percentual de uso da água por setor em condições de normalidade.
-        </p>
+    <SectionCard
+      id="comp-titulo"
+      title="Composição da demanda"
+      description="Participação de cada uso na demanda cadastrada, em normalidade."
+    >
+      <div aria-hidden="true" className="flex h-7 gap-0.5 overflow-hidden rounded-lg">
+        {grupos.map((g, i) => (
+          <span key={g.label} style={{ width: `${g.pct}%`, background: COLORS[i] }} />
+        ))}
       </div>
-      <div className="p-4">
-        <div className="w-full h-[300px]">
-          <ResponsiveContainer>
-            <PieChart>
-              <Pie
-                data={data}
-                dataKey="Vazão (L/s)"
-                nameKey="Uso"
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                label={({ name, percent }: any) =>
-                  (percent ?? 0) > 0.004
-                    ? `${name} (${((percent ?? 0) * 100).toFixed(1)}%)`
-                    : ""
-                }
-                labelLine={false}
-              >
-                {data.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip
-                formatter={(value: number, name: string) => [
-                  `${value} L/s`,
-                  name,
-                ]}
-                contentStyle={{
-                  backgroundColor: "#f9fafb",
-                  borderColor: "#e5e7eb",
-                }}
-              />
-              <Legend wrapperStyle={{ fontSize: "12px" }} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-    </div>
+      <ul className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-x-8 gap-y-2.5 p-0">
+        {grupos.map((g, i) => (
+          <li key={g.label} className="flex items-start gap-2.5 border-b border-muted py-2">
+            <span
+              aria-hidden="true"
+              className="mt-1 size-3 shrink-0 rounded-[3px]"
+              style={{ background: COLORS[i] }}
+            />
+            <span className="flex-1 text-sm leading-snug">
+              {g.label}
+              {g.members && <span className="block text-xs text-muted-foreground">{g.members.join(", ")}</span>}
+            </span>
+            <strong className="tabular-nums">{formatNumber(g.pct, 1)}%</strong>
+          </li>
+        ))}
+      </ul>
+    </SectionCard>
   );
 }

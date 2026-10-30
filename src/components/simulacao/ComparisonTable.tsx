@@ -55,7 +55,7 @@ export function ComparisonTable({ cenarios }: ComparisonTableProps) {
                 <TableHead className="text-right min-w-[80px]">
                   Falhas
                 </TableHead>
-                <TableHead className="text-right min-w-[70px] text-red-600">
+                <TableHead className="text-right min-w-[70px] text-estado-severa-text">
                   FNA (%)
                 </TableHead>
                 <TableHead className="text-right min-w-[90px]">
@@ -73,12 +73,12 @@ export function ComparisonTable({ cenarios }: ComparisonTableProps) {
                   className={`transition-colors hover:bg-muted/50 ${
                     c.frequencia_nao_atendida === maiorFNAGlobal &&
                     maiorFNAGlobal > 0
-                      ? "bg-red-50 hover:bg-red-100/60"
+                      ? "bg-estado-severa-bg hover:bg-estado-severa-bg/60"
                       : ""
                   }`}
                 >
                   <TableCell className="font-medium">{c.nome}</TableCell>
-                  <TableCell className="text-right font-bold text-blue-700">
+                  <TableCell className="text-right font-bold text-water">
                     {c.volume_final.toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right">
@@ -86,7 +86,7 @@ export function ComparisonTable({ cenarios }: ComparisonTableProps) {
                   </TableCell>
                   <TableCell className="text-right">
                     {c.primeira_falha ?? (
-                      <span className="text-green-600">—</span>
+                      <span className="text-estado-normal-text">—</span>
                     )}
                   </TableCell>
                   <TableCell className="text-right">
@@ -96,10 +96,10 @@ export function ComparisonTable({ cenarios }: ComparisonTableProps) {
                     <span
                       className={
                         c.frequencia_nao_atendida === 0
-                          ? "text-green-600"
+                          ? "text-estado-normal-text"
                           : c.frequencia_nao_atendida <= 20
-                            ? "text-amber-600"
-                            : "text-red-600"
+                            ? "text-link-hover"
+                            : "text-estado-severa-text"
                       }
                     >
                       {c.frequencia_nao_atendida.toFixed(1)}%
@@ -109,7 +109,7 @@ export function ComparisonTable({ cenarios }: ComparisonTableProps) {
                     {c.ganho_fna !== null ? (
                       <span
                         className={`inline-flex items-center gap-0.5 font-semibold ${
-                          c.ganho_fna > 0 ? "text-green-600" : "text-red-600"
+                          c.ganho_fna > 0 ? "text-estado-normal-text" : "text-estado-severa-text"
                         }`}
                       >
                         {c.ganho_fna > 0 ? (
@@ -130,8 +130,8 @@ export function ComparisonTable({ cenarios }: ComparisonTableProps) {
                       <span
                         className={`inline-flex items-center gap-0.5 font-semibold ${
                           c.ganho_volume > 0
-                            ? "text-green-600"
-                            : "text-red-600"
+                            ? "text-estado-normal-text"
+                            : "text-estado-severa-text"
                         }`}
                       >
                         {c.ganho_volume > 0 ? (

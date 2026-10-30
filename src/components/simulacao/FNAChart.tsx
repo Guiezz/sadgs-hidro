@@ -24,9 +24,9 @@ interface FNAChartProps {
 }
 
 const getBarColor = (fna: number): string => {
-  if (fna === 0) return "#16a34a";
-  if (fna <= 20) return "#d97706";
-  return "#dc2626";
+  if (fna === 0) return "var(--estado-normal-dot)";
+  if (fna <= 20) return "var(--estado-alerta-dot)";
+  return "var(--estado-severa-dot)";
 };
 
 export function FNAChart({ cenarios }: FNAChartProps) {
@@ -68,7 +68,7 @@ export function FNAChart({ cenarios }: FNAChartProps) {
                 contentStyle={{
                   fontSize: "12px",
                   backgroundColor: "rgba(255, 255, 255, 0.95)",
-                  border: "1px solid #e2e8f0",
+                  border: "1px solid var(--border)",
                   borderRadius: "6px",
                   padding: "8px",
                 }}

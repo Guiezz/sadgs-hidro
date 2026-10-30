@@ -20,6 +20,15 @@ export interface IdentificationData {
   long: number;
   url_imagem: string;
   url_imagem_usos: string;
+  // Ficha técnica (opcionais: só aparecem quando preenchidos na API)
+  capacidade_hm3?: number;
+  codigo_funceme?: string;
+  bacia?: string | null;
+  area_drenagem_km2?: number | null;
+  ano_construcao?: number | null;
+  construtor?: string | null;
+  rio_barrado?: string | null;
+  municipios_atendidos?: string | null;
 }
 
 // --- TIPOS PARA O DASHBOARD ---
@@ -93,15 +102,16 @@ export interface BalancoMensal {
   "Evaporação (m³/s)": number;
 }
 
+// Formato real de /water-balance (rótulos montados pelo controller).
 export interface ComposicaoDemanda {
-  usos: string;
-  demandas_hm3: number;
+  Uso: string;
+  "Vazão (L/s)": number;
 }
 
 export interface OfertaDemanda {
-  cenarios: string;
-  "oferta_l/s": number;
-  "demanda_l/s": number;
+  "Cenário": string;
+  "Oferta (L/s)": number;
+  "Demanda (L/s)": number;
 }
 
 // --- TIPOS ADICIONAIS ---

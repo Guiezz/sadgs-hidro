@@ -1,7 +1,8 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
+import { Loader2, MapPin } from "lucide-react";
+import { useReservoir } from "@/context/ReservoirContext";
+import { EmptyState } from "@/components/app/EmptyState";
 
 interface EmptyReservoirStateProps {
   title?: string;
@@ -10,21 +11,24 @@ interface EmptyReservoirStateProps {
 
 export function EmptyReservoirState({
   title = "Nenhum hidrossistema selecionado",
-  description = "Para visualizar as informações detalhadas, por favor escolha um reservatório no seletor localizado no topo da página.",
+  description = "Escolha um hidrossistema no seletor do topo da página para ver as informações.",
 }: EmptyReservoirStateProps) {
+  const { isLoading } = useReservoir();
+
   return (
-    <main className="flex flex-1 items-center justify-center p-4">
-      <Card className="max-w-md w-full border-dashed shadow-none bg-muted/30">
-        <CardContent className="flex flex-col items-center gap-4 pt-8 pb-8 text-center">
-          <div className="bg-primary/10 p-3 rounded-full">
-            <AlertCircle className="h-10 w-10 text-primary" />
-          </div>
-          <div className="space-y-2">
-            <h2 className="text-xl font-semibold text-foreground">{title}</h2>
-            <p className="text-muted-foreground">{description}</p>
-          </div>
-        </CardContent>
-      </Card>
-    </main>
+    <div className="mx-auto flex w-full max-w-[1240px] flex-1 items-center justify-center px-4 py-16 md:px-10">
+      {isLoading ? (
+        <div role="status" className="w-full max-w-md">
+          <EmptyState
+            icon={Loader2}
+            title="Carregando hidrossistemas…"
+            description="O primeiro carregamento pode levar até 1 minuto enquanto o servidor inicia."
+            className="[&_svg]:animate-spin"
+          />
+        </div>
+      ) : (
+        <EmptyState icon={MapPin} title={title} description={description} className="w-full max-w-md" />
+      )}
+    </div>
   );
 }

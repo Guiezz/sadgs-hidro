@@ -1,82 +1,76 @@
-"use client";
+import { CircleCheck, TriangleAlert } from "lucide-react";
+import type { OfertaDemanda } from "@/lib/types";
+import { garantiaStatus } from "@/lib/water";
+import { formatNumber, formatSigned } from "@/lib/format";
+import { cn } from "@/lib/utils";
+import { SectionCard } from "@/components/app/SectionCard";
 
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
-import { OfertaDemanda } from "@/lib/types";
+// Um card por garantia: atende ou déficit, folga em L/s e barras oferta × demanda.
+export function OfertaDemandaChart({ data }: { data: OfertaDemanda[] }) {
+  const items = data.map(garantiaStatus);
+  const max = Math.max(1, ...items.flatMap((i) => [i.oferta, i.demanda]));
+  const demandaTotal = items[0]?.demanda;
 
-interface Props {
-  data: OfertaDemanda[];
-}
-
-export function OfertaDemandaChart({ data }: Props) {
   return (
-    <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
-      <div className="p-4 border-b border-border/40">
-        <h3 className="text-sm font-semibold">Relação Oferta vs. Demanda</h3>
-        <p className="text-sm text-muted-foreground mt-1">
-          Comparativo entre a oferta hídrica e a demanda total para diferentes
-          garantias.
-        </p>
-      </div>
-      <div className="p-4">
-        <div className="h-[300px] w-full">
-          <ResponsiveContainer>
-            <BarChart
-              data={data}
-              barCategoryGap="20%"
-              margin={{ top: 10, right: 30, left: 0, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                dataKey="Cenário"
-                fontSize={12}
-                tick={{ fill: "#4B5563" }}
-              />
-              <YAxis
-                label={{
-                  value: "L/s",
-                  angle: -90,
-                  position: "insideLeft",
-                  fill: "#4B5563",
-                  fontSize: 12,
-                }}
-                tick={{ fill: "#4B5563" }}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "rgba(225, 225, 225, 1)",
-                  borderColor: "#e5e7eb",
-                  fontSize: 12,
-                  borderRadius: 8,
-                  color: "#111827",
-                }}
-                formatter={(value: number) => `${value.toFixed(2)} L/s`}
-              />
-              <Legend wrapperStyle={{ fontSize: "12px" }} />
-              <Bar
-                dataKey="Oferta (L/s)"
-                fill="var(--chart-1)"
-                name="Oferta (Vazão Regularizada)"
-                radius={[6, 6, 0, 0]}
-              />
-              <Bar
-                dataKey="Demanda (L/s)"
-                fill="var(--chart-2)"
-                name="Demanda Total"
-                radius={[6, 6, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-    </div>
+    <SectionCard
+      id="od-titulo"
+      title="Oferta x demanda por garantia"
+      description={
+        demandaTotal
+          ? `Vazão regularizada (oferta) comparada à demanda total de ${formatNumber(demandaTotal, 0)} L/s.`
+          : "Vazão regularizada (oferta) comparada à demanda total."
+      }
+    >
+      <ul className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(min(260px,100%),1fr))] gap-3.5 p-0">
+        {items.map((g) => (
+          <li key={g.label} className="flex flex-col gap-3.5 rounded-2xl border border-border bg-background p-5">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="m-0 text-[15px] font-bold">{g.label}</h3>
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold",
+                  g.atende ? "bg-estado-normal-bg text-estado-normal-text" : "bg-estado-severa-bg text-estado-severa-text",
+                )}
+              >
+                {g.atende ? (
+                  <CircleCheck aria-hidden="true" className="size-3.5" />
+                ) : (
+                  <TriangleAlert aria-hidden="true" className="size-3.5" />
+                )}
+                {g.atende ? "Atende" : "Déficit"}
+              </span>
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span
+                className={cn(
+                  "font-display text-[34px] leading-none font-bold tabular-nums",
+                  g.atende ? "text-estado-normal-text" : "text-estado-severa-text",
+                )}
+              >
+                {formatSigned(g.saldo, 0)}
+              </span>
+              <span className="text-sm text-muted-foreground">{g.saldo >= 0 ? "L/s de folga" : "L/s"}</span>
+            </div>
+            <div className="flex flex-col gap-1.5 text-xs text-muted-foreground">
+              {[
+                { label: "Oferta", value: g.oferta, cls: "bg-water" },
+                { label: "Demanda", value: g.demanda, cls: "bg-secondary" },
+              ].map((bar) => (
+                <span key={bar.label} className="flex items-center gap-2">
+                  <span className="w-16">{bar.label}</span>
+                  <span className="flex-1">
+                    <span
+                      className={cn("block h-2.5 max-w-[180px] rounded-full", bar.cls)}
+                      style={{ width: `${(bar.value / max) * 100}%` }}
+                    />
+                  </span>
+                  <strong className="tabular-nums text-foreground">{formatNumber(bar.value, 0)}</strong>
+                </span>
+              ))}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </SectionCard>
   );
 }

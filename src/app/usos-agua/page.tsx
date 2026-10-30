@@ -1,148 +1,127 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useReservoir } from "@/context/ReservoirContext";
-import { config } from "@/config";
-import { UsoAgua, IdentificationData } from "@/lib/types";
-import { UsoAguaChartResponsive } from "@/components/usos/UsoAguaChartResponsive";
-import Image from "next/image";
-import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { RefreshCw } from "lucide-react";
+import { api } from "@/lib/api";
+import { sortUsosByNormal } from "@/lib/water";
+import { useReservoirQuery } from "@/hooks/useReservoirQuery";
+import { PageHeader } from "@/components/app/PageHeader";
+import { SectionCard } from "@/components/app/SectionCard";
+import { SegmentedControl } from "@/components/app/SegmentedControl";
+import { EmptyState } from "@/components/app/EmptyState";
+import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyReservoirState } from "@/components/dashboard/EmptyReservoirState";
+import { UsosKpis } from "@/components/usos/UsosKpis";
+import { UsoBars } from "@/components/usos/UsoBars";
+import { UsoTable } from "@/components/usos/UsoTable";
+import { UsoDiagram } from "@/components/usos/UsoDiagram";
+
+type Formato = "grafico" | "tabela";
+
+// O diagrama é opcional: se /identification falhar, a página segue sem ele.
+const fetchUsos = (id: number) =>
+  Promise.all([api.getUsosAgua(id), api.getIdentification(id).catch(() => null)]).then(
+    ([usos, identification]) => ({ usos: usos ?? [], identification }),
+  );
 
 export default function UsosAguaPage() {
-  const { selectedReservoir } = useReservoir();
+  const { data, error, isLoading, reload, reservoir } = useReservoirQuery(fetchUsos);
+  const [formato, setFormato] = useState<Formato>("grafico");
 
-  const [chartData, setChartData] = useState<UsoAgua[]>([]);
-  const [identificationData, setIdentificationData] =
-    useState<IdentificationData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Se não houver reservatório selecionado, paramos o loading e não fazemos o fetch
-    if (!selectedReservoir) {
-      setIsLoading(false);
-      return;
-    }
-
-    const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const id = selectedReservoir.id;
-
-        const [usosRes, idRes] = await Promise.all([
-          fetch(`${config.apiBaseUrl}/reservatorios/${id}/water-uses`),
-          fetch(`${config.apiBaseUrl}/reservatorios/${id}/identification`),
-        ]);
-
-        if (!usosRes.ok || !idRes.ok) {
-          throw new Error(
-            "Falha ao buscar os dados da página de Usos da Água.",
-          );
-        }
-
-        const usosData: UsoAgua[] = await usosRes.json();
-        const idData: IdentificationData = await idRes.json();
-
-        setChartData(usosData);
-        setIdentificationData(idData);
-      } catch (err) {
-        console.error(err);
-        setError(
-          err instanceof Error ? err.message : "Ocorreu um erro desconhecido.",
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [selectedReservoir]);
-
-  // 1. ESTADO: NADA SELECIONADO
-  if (!selectedReservoir) {
+  if (!reservoir) {
     return (
       <EmptyReservoirState
-        title="Análise de Uso da Água indisponível"
-        description="Por favor, selecione um hidrossistema no topo da página para visualizar o diagrama de usos e os dados de consumo."
+        title="Usos da água indisponíveis"
+        description="Escolha um hidrossistema no topo da página para ver a vazão alocada a cada uso."
       />
     );
   }
 
-  // 2. ESTADO: CARREGANDO
-  if (isLoading) {
-    return (
-      <main className="flex flex-1 items-center justify-center">
-        <div className="flex flex-col items-center gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          <p className="text-muted-foreground">
-            Carregando dados de usos da água...
-          </p>
-        </div>
-      </main>
+  const shell = (children: React.ReactNode) => (
+    <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-6 px-4 pt-9 pb-20 md:px-10">{children}</div>
+  );
+
+  if (isLoading || (!data && !error)) {
+    return shell(
+      <>
+        <Skeleton className="h-16 w-80" />
+        <Skeleton className="h-28 w-full rounded-2xl" />
+        <Skeleton className="h-[480px] w-full rounded-[20px]" />
+      </>,
     );
   }
 
-  // 3. ESTADO: ERRO NA API
-  if (error || !chartData || !identificationData) {
-    return (
-      <main className="flex flex-1 items-center justify-center p-4">
-        <div className="text-center p-6 bg-card border rounded-xl shadow-sm">
-          <h1 className="text-2xl font-semibold text-destructive mb-2">
-            Erro ao carregar os dados da página.
-          </h1>
-          <p>{error || "Verifique o console para mais detalhes."}</p>
-        </div>
-      </main>
+  if (error || !data) {
+    return shell(
+      <EmptyState
+        title="Não foi possível carregar os usos da água"
+        description={error ?? "Tente novamente em instantes."}
+        action={
+          <button
+            type="button"
+            onClick={reload}
+            className="inline-flex h-11 items-center gap-2 rounded-[10px] bg-secondary px-5 text-sm font-semibold text-secondary-foreground"
+          >
+            <RefreshCw aria-hidden="true" className="size-4" />
+            Tentar novamente
+          </button>
+        }
+      />,
     );
   }
 
-  // 4. ESTADO: SUCESSO
-  return (
-    <main className="flex flex-1 flex-col gap-6 p-4 lg:gap-8 lg:p-6 bg-background overflow-x-hidden">
-      <div className="space-y-1">
-        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-          Usos da Água
-        </p>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-          Análise de Consumo
-        </h1>
-      </div>
+  const usos = sortUsosByNormal(data.usos);
+  const diagrama = data.identification?.url_imagem_usos;
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
-        <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-border/40">
-          <h3 className="text-sm font-semibold">Diagrama de Usos</h3>
-        </div>
-        <div className="p-4">
-          {identificationData.url_imagem_usos ? (
-            <div className="relative w-full aspect-[4/3]">
-              <Image
-                src={identificationData.url_imagem_usos}
-                alt={`Diagrama de usos da água do açude ${identificationData.nome}`}
-                fill
-                style={{ objectFit: "contain" }}
-                className="rounded-md"
-              />
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              Imagem do diagrama de usos não encontrada.
-            </p>
-          )}
-        </div>
-      </div>
+  return shell(
+    <>
+      <PageHeader
+        eyebrow={`Usos da água · ${reservoir.nome}`}
+        title="Para onde vai a água"
+        description="Vazão alocada a cada uso em condições de normalidade e de escassez hídrica."
+      />
 
-      <div className="bg-card border border-border/40 rounded-xl">
-        <div className="p-4 border-b border-border/40">
-          <h3 className="text-sm font-semibold">Vazão por Setor</h3>
-        </div>
-        <div className="p-4">
-          <UsoAguaChartResponsive data={chartData} />
-        </div>
-      </div>
-      </div>
-    </main>
+      {usos.length === 0 ? (
+        <EmptyState title="Sem usos cadastrados" description="Este reservatório ainda não tem usos da água cadastrados." />
+      ) : (
+        <>
+          <UsosKpis usos={usos} />
+          <SectionCard
+            id="vazao-titulo"
+            title="Vazão por uso"
+            description="Ordenado pela vazão em normalidade, em L/s."
+            actions={
+              <>
+                {formato === "grafico" && (
+                  <ul aria-label="Legenda" className="m-0 flex list-none gap-4 p-0 text-[13px] text-muted-foreground">
+                    <li className="flex items-center gap-2">
+                      <span aria-hidden="true" className="size-2.5 rounded-[3px] bg-water" />
+                      Normalidade
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span aria-hidden="true" className="size-2.5 rounded-[3px] bg-scarcity" />
+                      Escassez
+                    </li>
+                  </ul>
+                )}
+                <SegmentedControl
+                  label="Formato de exibição"
+                  options={[
+                    { value: "grafico", label: "Gráfico" },
+                    { value: "tabela", label: "Tabela" },
+                  ]}
+                  value={formato}
+                  onChange={setFormato}
+                />
+              </>
+            }
+          >
+            {formato === "grafico" ? <UsoBars usos={usos} /> : <UsoTable usos={usos} />}
+          </SectionCard>
+        </>
+      )}
+
+      {diagrama && <UsoDiagram src={diagrama} reservatorio={reservoir.nome} />}
+    </>,
   );
 }

@@ -5,9 +5,29 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 function Table({ className, ...props }: React.ComponentProps<"table">) {
+  const ref = React.useRef<HTMLDivElement>(null)
+  const [rola, setRola] = React.useState(false)
+
+  // Só vira parada de Tab (e região nomeada) quando há rolagem horizontal.
+  React.useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const medir = () => setRola(el.scrollWidth > el.clientWidth + 1)
+    medir()
+    if (typeof ResizeObserver === "undefined") return
+    const obs = new ResizeObserver(medir)
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
+  const nome = props["aria-label"]
   return (
     <div
+      ref={ref}
       data-slot="table-container"
+      tabIndex={rola ? 0 : undefined}
+      role={rola ? "region" : undefined}
+      aria-label={rola ? `${nome ?? "Tabela"} (role para o lado)` : undefined}
       className="relative w-full overflow-x-auto"
     >
       <table
