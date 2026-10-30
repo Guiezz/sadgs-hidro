@@ -24,7 +24,7 @@ function ActionList({ data }: { data: PlanoAcao[] }) {
       <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
         {current.map((a) => (
           <li key={a.id} className="flex flex-col gap-1 rounded-xl border border-border px-4 py-3">
-            <span className="text-sm font-semibold">{splitActions(a.acoes)[0] ?? a.acoes}</span>
+            <span className="text-sm font-semibold texto-corrido">{splitActions(a.acoes)[0] ?? a.acoes}</span>
             {a.responsaveis && (
               <span className="text-[13px] text-muted-foreground">
                 Responsáveis: {splitList(a.responsaveis).slice(0, 3).join(", ")}

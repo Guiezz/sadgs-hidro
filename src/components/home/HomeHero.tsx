@@ -35,7 +35,7 @@ export function HomeHero() {
           >
             Decisões melhores antes que a seca chegue.
           </h1>
-          <p className="m-0 max-w-[560px] text-lg leading-relaxed text-muted-foreground text-pretty">
+          <p className="m-0 max-w-[560px] text-lg leading-relaxed text-muted-foreground texto-corrido">
             Plataforma integrada para monitoramento, acompanhamento e divulgação das ações dos
             Planos de Gestão Proativa de Seca dos hidrossistemas do Ceará.
           </p>

@@ -149,7 +149,7 @@ export function VolumeChart({ data, capacidadeMaxima, reservatorio }: VolumeChar
           Entenda as metas
           <ChevronDown aria-hidden="true" className="ml-auto size-4 transition-transform group-open:rotate-180" />
         </summary>
-        <p className="m-0 mt-3 text-sm leading-relaxed text-muted-foreground">
+        <p className="m-0 mt-3 text-sm leading-relaxed text-muted-foreground texto-corrido">
           As metas são os volumes de referência (em % da capacidade) definidos no Plano de Seca para cada mês.
           Quando o volume fica abaixo de uma meta, o reservatório muda de estado e novas medidas passam a valer.
         </p>

@@ -91,7 +91,7 @@ export function FeatureGrid() {
                 <Activity className="size-6" />
               </span>
               <span className="font-display text-[26px] font-bold text-white">Monitoramento de Secas</span>
-              <span className="text-[15px] leading-relaxed text-sidebar-foreground">
+              <span className="text-[15px] leading-relaxed text-sidebar-foreground texto-corrido">
                 Acompanhe a evolução do estado de seca de cada reservatório com base nos indicadores e metas do plano.
               </span>
               <span className="mt-auto inline-flex items-center gap-2 font-semibold text-primary">
@@ -128,7 +128,7 @@ export function FeatureGrid() {
                         className="size-4 shrink-0 text-label transition-[transform,color] group-hover:translate-x-[3px] group-hover:text-link"
                       />
                     </span>
-                    <span className="text-sm leading-normal text-muted-foreground">{f.description}</span>
+                    <span className="text-sm leading-normal text-muted-foreground texto-corrido">{f.description}</span>
                   </span>
                 </Link>
               </li>
