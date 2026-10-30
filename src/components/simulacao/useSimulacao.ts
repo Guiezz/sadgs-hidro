@@ -1,7 +1,7 @@
 "use client";
 
 // Estado e regras do simulador (extraído de app/simulacao/page.tsx sem mudar o comportamento).
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { format, getDaysInMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { api } from "@/lib/api";
@@ -22,6 +22,8 @@ import { parseDataLocal } from "./helpers";
 export function useSimulacao() {
   // --- CONTEXTO ---
   const { selectedReservoir } = useReservoir();
+  // Cada simulação guarda o token da vez; trocar de reservatório invalida o token.
+  const execucaoRef = useRef(0);
 
   // --- ESTADOS ---
   const [acudes, setAcudes] = useState<SimAcude[]>([]);
@@ -84,19 +86,27 @@ export function useSimulacao() {
   useEffect(() => {
     if (!selectedAcudeId) return;
     const id = parseInt(selectedAcudeId);
+    let ativo = true;
     api.getSimulacaoAnos(id).then((resp) => {
+      if (!ativo) return;
       if (resp.anos.length > 0) {
         setAnosDisponiveis(resp.anos);
       } else {
         setAnosDisponiveis(generateAnosRange(1911, 2017));
       }
     }).catch(() => {
-      setAnosDisponiveis(generateAnosRange(1911, 2017));
+      if (ativo) setAnosDisponiveis(generateAnosRange(1911, 2017));
     });
+    return () => {
+      ativo = false;
+    };
   }, [selectedAcudeId]);
 
   // --- SINCRONIZAÇÃO COM O CONTEXTO ---
   useEffect(() => {
+    execucaoRef.current++;
+    setSimulating(false);
+    setProgresso(null);
     setResultado(null);
     setResultadoMulti(null);
     setAnosDisponiveis([]);
@@ -115,9 +125,10 @@ export function useSimulacao() {
         setError(null);
 
         // Buscar gatilhos PGPS (usa o id do reservatório, não o código da simulação)
+        const execucao = execucaoRef.current;
         api.getGatilhosPGPS(selectedReservoir.id)
-          .then((resp) => setGatilhos(resp.gatilhos))
-          .catch(() => setGatilhos([]));
+          .then((resp) => execucao === execucaoRef.current && setGatilhos(resp.gatilhos))
+          .catch(() => execucao === execucaoRef.current && setGatilhos([]));
       } else {
         setSelectedAcudeId("");
         setCapacidadeTotal(0);
@@ -264,6 +275,8 @@ export function useSimulacao() {
       return;
     }
 
+    const execucao = ++execucaoRef.current;
+    const vigente = () => execucao === execucaoRef.current;
     setSimulating(true);
     setError(null);
     setResultado(null);
@@ -290,6 +303,7 @@ export function useSimulacao() {
 
         for (let i = 0; i < cenariosDemanda.length; i++) {
           const cenario = cenariosDemanda[i];
+          if (!vigente()) return;
           setProgresso(`Cenário ${i + 1}/${total}: ${cenario.nome}`);
 
           const demandaCenario = demandaBase * (cenario.percentual / 100);
@@ -333,6 +347,7 @@ export function useSimulacao() {
           }
         }
 
+        if (!vigente()) return;
         if (erros.length > 0) {
           setError(`Falha ao simular cenário(s): ${erros.join(", ")}`);
         }
@@ -377,15 +392,17 @@ export function useSimulacao() {
           ...baseParams,
           demandas_mensais: [demandaBase],
         });
-        setResultado(resp);
+        if (vigente()) setResultado(resp);
       }
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "Erro ao executar a simulação.",
-      );
+      if (vigente()) {
+        setError(err instanceof Error ? err.message : "Erro ao executar a simulação.");
+      }
     } finally {
-      setSimulating(false);
-      setProgresso(null);
+      if (vigente()) {
+        setSimulating(false);
+        setProgresso(null);
+      }
     }
   };
 
