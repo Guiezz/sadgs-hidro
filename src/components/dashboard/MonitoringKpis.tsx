@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { formatNumber, formatSigned } from "@/lib/format";
-import { distanceToMetaPp } from "@/lib/monitoring";
+import { distanceToNextLimit } from "@/lib/monitoring";
 import { droughtLabel, normalizeDroughtState } from "@/lib/drought-state";
 
 interface MonitoringKpisProps {
   volumeHm3: number;
   volumePct: number;
   capacidadeHm3: number | null;
-  variation: { deltaHm3: number; perDay: number } | null;
+  variation: { deltaHm3: number; perDay: number; days: number } | null;
   diasNoEstado: number | null;
-  meta1Pct: number | null;
+  limites: number[] | null;
   medidasAtivas: number;
   estado: string;
 }
@@ -27,12 +27,12 @@ export function MonitoringKpis({
   capacidadeHm3,
   variation,
   diasNoEstado,
-  meta1Pct,
+  limites,
   medidasAtivas,
   estado,
 }: MonitoringKpisProps) {
   const key = normalizeDroughtState(estado);
-  const distancia = meta1Pct === null ? null : distanceToMetaPp(volumePct, meta1Pct);
+  const distancia = limites ? distanceToNextLimit(volumePct, limites) : null;
   const falling = variation !== null && variation.deltaHm3 < 0;
 
   return (
@@ -65,7 +65,7 @@ export function MonitoringKpis({
       </div>
 
       <div className={cell}>
-        <dt className={dt}>Variação em 7 dias</dt>
+        <dt className={dt}>Variação em {variation?.days ?? 7} {variation?.days === 1 ? "dia" : "dias"}</dt>
         <dd className="m-0 flex items-baseline gap-1.5">
           <span className={`${big} ${falling ? "text-decline" : ""}`}>
             {variation ? formatSigned(variation.deltaHm3) : "—"}
@@ -98,7 +98,9 @@ export function MonitoringKpis({
         </dd>
         {distancia !== null && (
           <dd className={note}>
-            {formatNumber(Math.abs(distancia), 1)} p.p. {distancia >= 0 ? "acima" : "abaixo"} da Meta 1
+            {distancia.direcao === "acima"
+              ? `${formatNumber(distancia.pp, 1)} p.p. acima do limite do estado Normal`
+              : `${formatNumber(distancia.pp, 1)} p.p. para chegar ao estado ${droughtLabel(distancia.estado)}`}
           </dd>
         )}
       </div>

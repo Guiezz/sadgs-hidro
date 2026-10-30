@@ -77,8 +77,11 @@ export function VolumeChart({ data, capacidadeMaxima, reservatorio }: VolumeChar
         <SegmentedControl label="Período do gráfico" options={PERIODS} value={period} onChange={setPeriod} />
       }
     >
-      {chartData.length === 0 ? (
-        <EmptyState title="Sem dados de volume" description="Ainda não há registros de volume para este reservatório." />
+      {chartData.length < 2 ? (
+        <EmptyState
+          title="Sem dados de volume"
+          description="Ainda não há registros suficientes no período para desenhar o gráfico."
+        />
       ) : (
         <ChartFigure
           ariaLabel={ariaLabel}

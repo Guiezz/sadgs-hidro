@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import type { HistoryEntry } from "./types";
 import {
   dailyDiffs,
-  distanceToMetaPp,
   filterByPeriod,
   historyToCsv,
   variation7d,
+  gaugeThresholds,
+  gaugeSegments,
+  distanceToNextLimit,
 } from "./monitoring";
 
 const pts = ["2015-01-01", "2021-10-19", "2025-10-20", "2026-10-20"].map((Data) => ({
@@ -72,4 +74,28 @@ describe("historyToCsv", () => {
     expect(historyToCsv([{ ...h("14/10/2026", 1), "Estado de Seca": 'A;"B"' }])).toContain('"A;""B"""'));
 });
 
-it("distanceToMetaPp", () => expect(distanceToMetaPp(78.6, 15.7)).toBe(62.9));
+
+describe("faixas do medidor", () => {
+  it("ordena metas decrescentes (Acarape)", () =>
+    expect(gaugeThresholds({ meta1: 0.157, meta2: 0.127, meta3: 0.1 })).toEqual([10, 12.7, 15.7]));
+  it("ordena metas crescentes (Trussu)", () =>
+    expect(gaugeThresholds({ meta1: 0.39, meta2: 0.42, meta3: 0.5 })).toEqual([39, 42, 50]));
+  it("metas todas zero viram null", () => expect(gaugeThresholds({ meta1: 0, meta2: 0, meta3: 0 })).toBeNull());
+  it("uma meta zero continua como limite (Jaburu I)", () =>
+    expect(gaugeThresholds({ meta1: 0.483, meta2: 0.7048, meta3: 0 })).toEqual([0, 48.3, 70.5]));
+
+  it("segmentos do menor para o maior: severa, seca, alerta, normal", () =>
+    expect(gaugeSegments([39, 42, 50])).toEqual([
+      { from: 0, to: 39, key: "severa" },
+      { from: 39, to: 42, key: "seca" },
+      { from: 42, to: 50, key: "alerta" },
+      { from: 50, to: 100, key: "normal" },
+    ]));
+
+  it("acima do maior limite: distância até o limite do Normal", () =>
+    expect(distanceToNextLimit(78.6, [10, 12.7, 15.7])).toEqual({ pp: 62.9, direcao: "acima", estado: "normal" }));
+  it("abaixo: distância até o limite do estado seguinte", () =>
+    expect(distanceToNextLimit(40, [39, 42, 50])).toEqual({ pp: 2, direcao: "abaixo", estado: "alerta" }));
+  it("abaixo de todos: falta para sair da Seca Severa", () =>
+    expect(distanceToNextLimit(5, [39, 42, 50])).toEqual({ pp: 34, direcao: "abaixo", estado: "seca" }));
+});

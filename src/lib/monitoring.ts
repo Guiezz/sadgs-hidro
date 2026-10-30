@@ -77,6 +77,31 @@ export function historyToCsv(history: HistoryEntry[]): string {
   return "﻿" + lines.join("\r\n") + "\r\n";
 }
 
-export function distanceToMetaPp(volumePct: number, metaPct: number): number {
-  return round(volumePct - metaPct, 1);
+// --- Medidor do estado atual ---
+// A ordem de Meta 1/2/3 varia entre reservatórios (crescente no Trussu,
+// decrescente no Acarape); o medidor trabalha sempre com os limites ordenados.
+
+export function gaugeThresholds(metas: { meta1: number; meta2: number; meta3: number }): number[] | null {
+  const valores = [metas.meta1, metas.meta2, metas.meta3];
+  if (valores.every((v) => !v)) return null;
+  return valores.map((v) => round((v || 0) * 100, 1)).sort((a, b) => a - b);
+}
+
+const BANDAS = ["severa", "seca", "alerta", "normal"] as const;
+
+export function gaugeSegments(limites: number[]): { from: number; to: number; key: (typeof BANDAS)[number] }[] {
+  const pontos = [0, ...limites, 100];
+  return BANDAS.map((key, i) => ({ from: pontos[i], to: pontos[i + 1], key }));
+}
+
+// Distância (p.p.) até o limite que muda o estado: acima do maior limite, quanto
+// falta para cair do Normal; abaixo dele, quanto falta para subir de estado.
+export function distanceToNextLimit(
+  volumePct: number,
+  limites: number[],
+): { pp: number; direcao: "acima" | "abaixo"; estado: (typeof BANDAS)[number] } {
+  const topo = limites[limites.length - 1];
+  if (volumePct >= topo) return { pp: round(volumePct - topo, 1), direcao: "acima", estado: "normal" };
+  const i = limites.findIndex((l) => volumePct < l);
+  return { pp: round(limites[i] - volumePct, 1), direcao: "abaixo", estado: BANDAS[i + 1] };
 }

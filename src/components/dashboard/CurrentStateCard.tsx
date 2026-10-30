@@ -4,12 +4,15 @@ import type { ReactNode } from "react";
 import { StateBadge } from "@/components/app/StateBadge";
 import { DROUGHT_STATES, droughtClasses, droughtLabel, normalizeDroughtState } from "@/lib/drought-state";
 import { formatNumber } from "@/lib/format";
+import { gaugeSegments } from "@/lib/monitoring";
 
 interface CurrentStateCardProps {
   state: string;
   volumePct: number;
-  // Metas do mês em % da capacidade (Meta 1 > Meta 2 > Meta 3).
+  // Metas do mês em % da capacidade, como vêm do plano (só para o texto).
   metas: { meta1: number; meta2: number; meta3: number } | null;
+  // Limites ordenados (crescente) que separam os estados; null sem metas.
+  limites: number[] | null;
   monthName: string;
   children: ReactNode; // a <dl> de KPIs ao lado
 }
@@ -30,17 +33,10 @@ function arc(from: number, to: number) {
   return `M${a.x.toFixed(1)} ${a.y.toFixed(1)} A${R} ${R} 0 0 1 ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
 }
 
-export function CurrentStateCard({ state, volumePct, metas, monthName, children }: CurrentStateCardProps) {
+export function CurrentStateCard({ state, volumePct, metas, limites, monthName, children }: CurrentStateCardProps) {
   const key = normalizeDroughtState(state);
   const needle = arcPoint(volumePct);
-  const segments = metas
-    ? [
-        { from: 0, to: metas.meta3, key: "severa" },
-        { from: metas.meta3, to: metas.meta2, key: "seca" },
-        { from: metas.meta2, to: metas.meta1, key: "alerta" },
-        { from: metas.meta1, to: 100, key: "normal" },
-      ]
-    : [{ from: 0, to: 100, key: key ?? "normal" }];
+  const segments = limites ? gaugeSegments(limites) : [{ from: 0, to: 100, key: key ?? "normal" }];
 
   return (
     <section
@@ -100,7 +96,7 @@ export function CurrentStateCard({ state, volumePct, metas, monthName, children 
             </li>
           ))}
         </ul>
-        {metas && (
+        {metas && limites && (
           <p className="m-0 mt-1 text-center text-xs text-muted-foreground">
             Metas de {monthName}: Meta 1 {formatNumber(metas.meta1, 1)}% · Meta 2 {formatNumber(metas.meta2, 1)}% ·
             Meta 3 {formatNumber(metas.meta3, 1)}%

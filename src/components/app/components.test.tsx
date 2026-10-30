@@ -51,3 +51,10 @@ it("SegmentedControl marca o ativo e avisa a troca", async () => {
   await userEvent.click(screen.getByRole("button", { name: "Tudo" }));
   expect(onChange).toHaveBeenCalledWith("tudo");
 });
+
+it("SegmentedControl tem alvo de toque de 44px", () => {
+  render(
+    <SegmentedControl label="Formato" options={[{ value: "a", label: "A" }]} value="a" onChange={() => {}} />,
+  );
+  expect(screen.getByRole("button", { name: "A" })).toHaveClass("min-h-11");
+});

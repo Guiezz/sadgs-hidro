@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Box, RefreshCw } from "lucide-react";
 import { api } from "@/lib/api";
-import { variation7d } from "@/lib/monitoring";
+import { gaugeThresholds, variation7d } from "@/lib/monitoring";
 import { splitList } from "@/lib/text";
 import { useReservoirQuery } from "@/hooks/useReservoirQuery";
 import { PageHeader } from "@/components/app/PageHeader";
@@ -75,6 +75,7 @@ export default function EstadoDeSecaPage() {
   const metas = lastPoint
     ? { meta1: lastPoint.meta1 * 100, meta2: lastPoint.meta2 * 100, meta3: lastPoint.meta3 * 100 }
     : null;
+  const limites = lastPoint ? gaugeThresholds(lastPoint) : null;
   const monthName = lastPoint ? MESES[Number(lastPoint.Data.slice(5, 7)) - 1] : "";
   const ultimaLeitura = history[history.length - 1]?.Data ?? summary.dataUltimaMedicao;
 
@@ -104,6 +105,7 @@ export default function EstadoDeSecaPage() {
         state={summary.estadoAtualSeca}
         volumePct={summary.volumePercentual}
         metas={metas}
+        limites={limites}
         monthName={monthName}
       >
         <MonitoringKpis
@@ -112,7 +114,7 @@ export default function EstadoDeSecaPage() {
           capacidadeHm3={reservoir.capacidade_hm3 || null}
           variation={variation7d(history)}
           diasNoEstado={summary.diasDesdeUltimaMudanca ?? null}
-          meta1Pct={metas?.meta1 ?? null}
+          limites={limites}
           medidasAtivas={summary.medidasRecomendadas?.length ?? 0}
           estado={summary.estadoAtualSeca}
         />
