@@ -18,6 +18,7 @@ import {
 import { useReservoir } from "@/context/ReservoirContext";
 import { sumBy } from "@/lib/water";
 import { parseDataLocal } from "./helpers";
+import { track } from "@/lib/analytics";
 
 export function useSimulacao() {
   // --- CONTEXTO ---
@@ -275,6 +276,11 @@ export function useSimulacao() {
       return;
     }
 
+    track("simulacao-executada", {
+      hidrossistema: selectedReservoir?.nome ?? "desconhecido",
+      modo: modoSimulacao,
+    });
+
     const execucao = ++execucaoRef.current;
     const vigente = () => execucao === execucaoRef.current;
     setSimulating(true);
@@ -412,6 +418,8 @@ export function useSimulacao() {
     headers: string[],
     rows: (string | number)[][],
   ) => {
+    // "simulacao_completa_12.csv" -> "simulacao_completa"
+    track("download-simulacao", { arquivo: filename.replace(/_[^_]*\.csv$/, "") });
     const csvContent = [
       headers.join(","),
       ...rows.map((e) => e.join(",")),

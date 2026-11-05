@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/app/AppShell";
+import { Analytics } from "@/components/app/Analytics";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const bricolage = Bricolage_Grotesque({
@@ -26,6 +27,7 @@ export default function RootLayout({
     <html lang="pt-BR" className={`${inter.variable} ${bricolage.variable}`}>
       <body className="font-sans">
         <AppShell>{children}</AppShell>
+        <Analytics />
       </body>
     </html>
   );
