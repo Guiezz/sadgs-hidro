@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, RefreshCw, SearchX } from "lucide-react";
+import { RefreshCw, SearchX } from "lucide-react";
 import { api } from "@/lib/api";
 import { useReservoirQuery } from "@/hooks/useReservoirQuery";
 import { EmptyState } from "@/components/app/EmptyState";
+import { PageNav } from "@/components/app/PageNav";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyReservoirState } from "@/components/dashboard/EmptyReservoirState";
 import { cn } from "@/lib/utils";
@@ -137,43 +138,7 @@ export default function ActionPlanClient() {
           </div>
         )}
 
-        {pages > 1 && (
-          <nav aria-label="Paginação" className="flex flex-wrap justify-center gap-1.5 pt-2">
-            <button
-              type="button"
-              aria-label="Página anterior"
-              disabled={page === 1}
-              onClick={() => setPage((p) => p - 1)}
-              className="flex size-11 items-center justify-center rounded-[10px] border border-border bg-card hover:bg-muted disabled:text-label disabled:opacity-50"
-            >
-              <ChevronLeft aria-hidden="true" className="size-4" />
-            </button>
-            {Array.from({ length: pages }, (_, i) => i + 1).map((n) => (
-              <button
-                key={n}
-                type="button"
-                aria-current={n === page ? "page" : undefined}
-                aria-label={`Página ${n}`}
-                onClick={() => setPage(n)}
-                className={cn(
-                  "size-11 rounded-[10px] text-sm font-semibold",
-                  n === page ? "bg-secondary text-white" : "border border-border bg-card hover:bg-muted",
-                )}
-              >
-                {n}
-              </button>
-            ))}
-            <button
-              type="button"
-              aria-label="Próxima página"
-              disabled={page === pages}
-              onClick={() => setPage((p) => p + 1)}
-              className="flex size-11 items-center justify-center rounded-[10px] border border-border bg-card hover:bg-muted disabled:text-label disabled:opacity-50"
-            >
-              <ChevronRight aria-hidden="true" className="size-4" />
-            </button>
-          </nav>
-        )}
+        <PageNav page={page} pages={pages} onChange={setPage} />
       </section>
     </>
   );
