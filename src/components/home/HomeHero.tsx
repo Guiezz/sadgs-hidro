@@ -23,7 +23,7 @@ export function HomeHero() {
       aria-labelledby="hero-titulo"
       className="border-b border-border bg-card bg-[radial-gradient(var(--grid-dot)_1px,transparent_1px)] [background-size:22px_22px] px-4 pt-12 pb-12 md:px-14 md:pt-16 md:pb-14"
     >
-      <div className="mx-auto flex max-w-[1120px] flex-wrap items-center gap-12">
+      <div className="mx-auto flex max-w-[1120px] flex-wrap items-end gap-12">
         <div className="flex min-w-0 flex-[999_1_460px] flex-col gap-6">
           <span className="inline-flex items-center gap-2 self-start rounded-full bg-accent px-3 py-1.5 text-[13px] font-semibold text-link-hover">
             <span aria-hidden="true" className="size-2 rounded-full bg-primary" />
@@ -89,13 +89,14 @@ export function HomeHero() {
               className="h-auto w-full max-w-[260px]"
             />
           </div>
-          <dl className="m-0 grid grid-cols-3 gap-2.5">
+          {/* Faixa única: rótulo com 2 linhas reservadas para as três colunas terminarem iguais. */}
+          <dl className="m-0 grid grid-cols-3 divide-x divide-border rounded-[14px] border border-border bg-card">
             {stats.map((s) => (
               <div
                 key={s.label}
-                className="flex flex-col-reverse justify-end gap-1 rounded-[14px] border border-border bg-card px-4 py-3.5"
+                className="flex flex-col-reverse items-center justify-end gap-1.5 px-2 py-4 text-center"
               >
-                <dt className="text-xs font-medium leading-tight text-label">{s.label}</dt>
+                <dt className="min-h-[2lh] text-xs font-medium leading-tight text-label hyphens-auto">{s.label}</dt>
                 <dd className="m-0 font-display text-[30px] font-bold leading-none tabular-nums">{s.value}</dd>
               </div>
             ))}
