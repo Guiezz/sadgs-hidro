@@ -7,8 +7,10 @@ import {
   useContext,
   ReactNode,
   useEffect,
+  useCallback,
 } from "react";
 import { Reservatorio } from "@/lib/types";
+import { track } from "@/lib/analytics";
 
 // --- INTERFACES ---
 interface ReservoirContextType {
@@ -65,12 +67,18 @@ export function ReservoirProvider({ children }: { children: ReactNode }) {
     fetchReservoirs();
   }, []);
 
+  // Só a escolha do visitante vira métrica; a seleção padrão acima não passa por aqui.
+  const selecionarReservatorio = useCallback((reservoir: Reservatorio | null) => {
+    setSelectedReservoir(reservoir);
+    if (reservoir) track("hidrossistema-selecionado", { nome: reservoir.nome });
+  }, []);
+
   return (
     <ReservoirContext.Provider
       value={{
         reservatorios,
         selectedReservoir,
-        setSelectedReservoir,
+        setSelectedReservoir: selecionarReservatorio,
         isLoading,
         error,
       }}
