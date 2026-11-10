@@ -5,9 +5,13 @@ import Link from "next/link";
 import { ArrowRight, Info } from "lucide-react";
 import { useReservoir } from "@/context/ReservoirContext";
 import { ReservoirSelect } from "@/components/app/ReservoirSelect";
+import { ExternalLink } from "@/components/app/ExternalLink";
 
 // 1911–2017 da série histórica; instituições parceiras do plano.
 export const HOME_STATS = { anosDeDados: 107, instituicoes: 7 };
+
+// Página do CEPAS/UFC com os PDFs dos planos na íntegra.
+const PLANOS_CEPAS_URL = "https://cepas.ufc.br/pt_br/novos-planos-de-secas-hidrossistemas/#relatorios";
 
 export function HomeHero() {
   const { reservatorios, isLoading } = useReservoir();
@@ -36,8 +40,14 @@ export function HomeHero() {
             Decisões melhores antes que a seca chegue.
           </h1>
           <p className="m-0 max-w-[560px] text-lg leading-relaxed text-muted-foreground texto-corrido">
-            Plataforma integrada para monitoramento, acompanhamento e divulgação das ações dos
-            Planos de Gestão Proativa de Seca dos hidrossistemas do Ceará.
+            Plataforma integrada para monitoramento, acompanhamento e divulgação das ações dos{" "}
+            <ExternalLink
+              href={PLANOS_CEPAS_URL}
+              className="inline font-semibold underline decoration-1 underline-offset-4 [&>svg]:ml-1 [&>svg]:inline [&>svg]:size-[0.85em] [&>svg]:align-[-0.05em]"
+            >
+              Planos de Gestão Proativa de Seca
+            </ExternalLink>{" "}
+            dos hidrossistemas do Ceará.
           </p>
 
           <form

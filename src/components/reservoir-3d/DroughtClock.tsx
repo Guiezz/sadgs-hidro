@@ -35,11 +35,13 @@ export function DroughtClock({
 
   const thresholds = [safeVm1, safeVm2, safeVm3];
 
+  // Mesma orientação do medidor do Monitoramento: 0% à esquerda, 100% à direita.
+  // O arco cônico vai da esquerda (270deg) até a direita passando pelo topo.
   const clockStyle = {
-    "--normal-end": `${(100 - safeVm1) / 2}%`,
-    "--alert-end": `${(100 - safeVm2) / 2}%`,
-    "--dry-end": `${(100 - safeVm3) / 2}%`,
-    "--hand-angle": `${-safeVolume * 1.8}deg`,
+    "--severa-end": `${safeVm3 / 2}%`,
+    "--dry-end": `${safeVm2 / 2}%`,
+    "--alert-end": `${safeVm1 / 2}%`,
+    "--hand-angle": `${-(100 - safeVolume) * 1.8}deg`,
     "--state": stateColor,
   } as React.CSSProperties;
 
@@ -58,7 +60,7 @@ export function DroughtClock({
             key={index}
             style={
               {
-                "--threshold-angle": `${-threshold * 1.8}deg`,
+                "--threshold-angle": `${-(100 - threshold) * 1.8}deg`,
               } as React.CSSProperties
             }
           />
