@@ -23,10 +23,10 @@
   height: 200px;
   background: conic-gradient(
     from 270deg,
-    var(--estado-normal-dot) 0 var(--normal-end),
-    var(--estado-alerta-dot) var(--normal-end) var(--alert-end),
-    var(--estado-seca-dot) var(--alert-end) var(--dry-end),
-    var(--estado-severa-dot) var(--dry-end) 50%,
+    var(--estado-severa-dot) 0 var(--severa-end),
+    var(--estado-seca-dot) var(--severa-end) var(--dry-end),
+    var(--estado-alerta-dot) var(--dry-end) var(--alert-end),
+    var(--estado-normal-dot) var(--alert-end) 50%,
     transparent 50% 100%
   );
   box-shadow: inset 0 0 0 1px rgba(23, 32, 42, 0.25);
@@ -125,10 +125,10 @@
 }
 
 
-.clock-scale-max {
+.clock-scale-min {
   left: calc(50% - 94px);
 }
 
-.clock-scale-min {
+.clock-scale-max {
   right: calc(50% - 94px);
 }
