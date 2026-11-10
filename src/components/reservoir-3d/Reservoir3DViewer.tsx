@@ -216,10 +216,46 @@ export default function Reservoir3DViewer({
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       {/* Coluna Principal: Visualizador 3D + Dinâmica Hidráulica */}
       <div className="lg:col-span-8 flex flex-col gap-5">
-        <div className="relative aspect-[4/3] md:aspect-video lg:h-[540px] rounded-2xl overflow-hidden shadow-lg border border-primary/20 bg-water-soft">
+        <div className="relative rounded-2xl overflow-hidden shadow-lg border border-primary/20 bg-water-soft">
+          {/* HUD mobile - faixa compacta acima da cena, para não cobrir o reservatório */}
+          <div className="md:hidden flex items-center justify-between gap-3 px-4 py-3 bg-white/90 border-b border-border/80 select-none">
+            <div className="min-w-0">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                Volume Armazenado
+              </span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-extrabold tracking-tight" style={{ color: estadoConfig.textHex }}>
+                  {volumePercent.toFixed(1)}%
+                </span>
+                <span className="text-[11px] text-muted-foreground font-medium truncate">
+                  {volumeHm3.toFixed(2)} de {capacityHm3.toFixed(2)} hm³
+                </span>
+              </div>
+            </div>
+            <div className="flex flex-col items-end gap-1 shrink-0">
+              <span
+                className="text-xs font-bold px-2 py-0.5 rounded-full"
+                style={{
+                  backgroundColor: `${estadoConfig.colorHex}22`,
+                  color: estadoConfig.textHex,
+                }}
+              >
+                {MONTHS_SHORT[monthIndex]}
+              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: estadoConfig.colorHex }} />
+                <span className="text-xs font-bold" style={{ color: estadoConfig.textHex }}>
+                  {estadoConfig.label}
+                </span>
+              </div>
+            </div>
+          </div>
+
+        <div className="relative aspect-square md:aspect-video lg:h-[540px]">
           {/* Rótulo superior do céu */}
-          <div className="absolute top-3 right-4 bg-secondary/80 backdrop-blur-sm text-white/90 text-[10px] font-semibold px-3 py-1 rounded-full uppercase tracking-wider select-none pointer-events-none z-10 border border-white/10">
-            Modelo Conceitual • Volume Não Batimétrico
+          <div className="absolute top-3 right-3 md:right-4 bg-secondary/80 backdrop-blur-sm text-white/90 text-[10px] font-semibold px-3 py-1 rounded-full uppercase tracking-wider select-none pointer-events-none z-10 border border-white/10">
+            <span className="md:hidden">Modelo Conceitual</span>
+            <span className="hidden md:inline">Modelo Conceitual • Volume Não Batimétrico</span>
           </div>
 
           <ReservoirScene
@@ -229,8 +265,8 @@ export default function Reservoir3DViewer({
             droughtState={estadoAtualKey}
           />
 
-          {/* HUD Top Left - Volume e Status */}
-          <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-4 py-3 rounded-xl border border-border/80 shadow-sm flex flex-col gap-1 select-none pointer-events-none min-w-[200px] z-10">
+          {/* HUD Top Left - Volume e Status (tablet/desktop) */}
+          <div className="hidden absolute top-3 left-3 bg-white/90 backdrop-blur-md px-4 py-3 rounded-xl border border-border/80 shadow-sm md:flex flex-col gap-1 select-none pointer-events-none min-w-[200px] z-10">
             <div className="flex items-center justify-between gap-3">
               <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                 Volume Armazenado
@@ -265,19 +301,21 @@ export default function Reservoir3DViewer({
           </div>
 
           {/* Dica de Interação no rodapé da cena */}
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-secondary/80 backdrop-blur-sm text-white text-[11px] font-medium px-4 py-1.5 rounded-full border border-white/10 select-none pointer-events-none shadow-sm z-10">
-            Arraste para girar · Scroll para zoom
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap bg-secondary/80 backdrop-blur-sm text-white text-[11px] font-medium px-4 py-1.5 rounded-full border border-white/10 select-none pointer-events-none shadow-sm z-10">
+            <span className="pointer-coarse:hidden">Arraste para girar · Scroll para zoom</span>
+            <span className="hidden pointer-coarse:inline">Arraste para girar · Pinça para zoom</span>
           </div>
+        </div>
         </div>
 
         {/* Card de Zonas e Dinâmica Hidráulica */}
         <div className="bg-card border border-border/60 rounded-xl p-5 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div className="font-bold text-foreground flex items-center gap-2 text-sm">
-              <Waves className="h-4 w-4 text-link" />
+              <Waves className="h-4 w-4 text-link shrink-0" />
               Zonas do Reservatório & Dinâmica Hidráulica
             </div>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-muted-foreground sm:text-right">
               Em <strong className="text-foreground">{MONTHS_FULL[monthIndex]}</strong>, {volumePercent.toFixed(1)}% está{" "}
               <strong className="text-link">
                 {volumeHm3 >= thresholds.vm1Hm3
